@@ -2,28 +2,25 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Button, Card } from '@/components/ui';
+import { Card } from '@/components/ui';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'redirecting' | 'error'>('idle');
   const [error, setError] = useState('');
 
-  async function sendLink(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus('sending');
+  async function signInWithGoogle() {
+    setStatus('redirecting');
     setError('');
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) {
       setError(error.message);
       setStatus('error');
-    } else {
-      setStatus('sent');
     }
+    // On success the browser redirects to Google, so nothing else runs here.
   }
 
   return (
@@ -37,52 +34,42 @@ export default function LoginPage() {
       </div>
 
       <Card className="p-6">
-        {status === 'sent' ? (
-          <div className="text-center">
-            <div className="text-3xl" aria-hidden="true">
-              📬
-            </div>
-            <h2 className="mt-2 font-display text-xl font-bold text-ink">Check your email</h2>
-            <p className="mt-1 text-[15px] text-ink-soft">
-              We sent a sign-in link to <strong>{email}</strong>. Tap it on this device to come
-              in. No password to remember.
-            </p>
-            <button
-              className="mt-4 text-sm font-semibold text-green underline"
-              onClick={() => setStatus('idle')}
-            >
-              Use a different email
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={sendLink}>
-            <label htmlFor="email" className="block text-sm font-semibold text-ink">
-              Your email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              inputMode="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 min-h-[48px] w-full rounded-2xl border border-[#e2e1d8] bg-white px-4 text-[16px] text-ink outline-none focus:border-green"
+        <button
+          onClick={signInWithGoogle}
+          disabled={status === 'redirecting'}
+          className="inline-flex min-h-[52px] w-full items-center justify-center gap-3 rounded-full border border-[#dcdbd2] bg-white px-5 text-[16px] font-semibold text-ink transition hover:bg-canvas disabled:opacity-60"
+        >
+          <svg width="20" height="20" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"
             />
-            <p className="mt-2 text-[13px] text-ink-soft">
-              We&apos;ll email you a magic link — the link keeps your garden private.
-            </p>
-            {status === 'error' ? (
-              <p role="alert" className="mt-2 text-sm font-semibold text-[#a23b3b]">
-                {error}
-              </p>
-            ) : null}
-            <Button type="submit" disabled={status === 'sending'} className="mt-4 w-full">
-              {status === 'sending' ? 'Sending…' : 'Email me a sign-in link'}
-            </Button>
-          </form>
-        )}
+            <path
+              fill="#34A853"
+              d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.02-3.7H.96v2.34A9 9 0 0 0 9 18z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M3.98 10.72a5.4 5.4 0 0 1 0-3.44V4.94H.96a9 9 0 0 0 0 8.12l3.02-2.34z"
+            />
+            <path
+              fill="#EA4335"
+              d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.47.9 11.43 0 9 0A9 9 0 0 0 .96 4.94l3.02 2.34C4.68 5.16 6.66 3.58 9 3.58z"
+            />
+          </svg>
+          {status === 'redirecting' ? 'Opening Google…' : 'Continue with Google'}
+        </button>
+
+        <p className="mt-3 text-center text-[13px] text-ink-soft">
+          One tap to sign in. No password to remember — and your garden stays private to
+          you and the people you invite.
+        </p>
+
+        {status === 'error' ? (
+          <p role="alert" className="mt-3 text-center text-sm font-semibold text-[#a23b3b]">
+            {error}
+          </p>
+        ) : null}
       </Card>
     </main>
   );

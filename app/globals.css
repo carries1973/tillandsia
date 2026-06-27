@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: #f7f6f1;
+}
+
+html,
+body {
+  background: var(--canvas);
+  color: #1f2a23;
+}
+
+body {
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+/* Honest focus rings everywhere (a11y) */
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 3px solid #3f7d52;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #ece9e1 25%, #f3f1ea 50%, #ece9e1 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}

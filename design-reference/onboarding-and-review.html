@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Tillandsia — onboarding & needs-review</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#f7f6f1;--card:#fff;--ink:#1f2a23;--ink-soft:#5d6b60;
+    --green:#3f7d52;--green-deep:#2c5c3b;--green-tint:#e6f0e4;
+    --bulbous:#caa45a;--rosette:#5aa9c9;--xeric:#b08bbf;
+    --shadow:0 8px 24px rgba(31,42,35,.10),0 2px 6px rgba(31,42,35,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#ece9e1;color:var(--ink);
+    font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;
+    padding:22px 14px 40px}
+  .pagehead{text-align:center;max-width:520px;margin:0 auto 22px}
+  .pagehead h1{font-family:"Bricolage Grotesque";font-weight:800;font-size:24px;margin:0 0 4px}
+  .pagehead p{color:var(--ink-soft);font-size:13.5px;margin:0}
+  .flow{display:flex;flex-direction:column;align-items:center;gap:26px}
+  .steplabel{font-weight:700;font-size:12.5px;color:var(--green);letter-spacing:.04em;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px}
+  .steplabel .n{background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:12px}
+  /* phone frame */
+  .phone{width:300px;max-width:92vw;background:var(--canvas);border-radius:34px;overflow:hidden;
+    box-shadow:0 18px 50px rgba(31,42,35,.22),0 0 0 9px #1f2a23,0 0 0 11px #33403a;position:relative}
+  .screen{min-height:540px;display:flex;flex-direction:column;position:relative}
+  .pad{padding:26px 22px}
+  .brand{font-family:"Bricolage Grotesque";font-weight:700;font-size:14px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--green);text-align:center;padding:16px 0 0}
+  h2{font-family:"Bricolage Grotesque";font-weight:800;font-size:25px;line-height:1.12;margin:0 0 8px}
+  .lede{color:var(--ink-soft);font-size:14px;line-height:1.5;margin:0 0 18px}
+  .avhero{width:74px;height:74px;border-radius:50%;background:linear-gradient(150deg,#7fae6e,#3f6f47);
+    display:flex;align-items:center;justify-content:center;font-size:38px;margin:6px auto 14px;
+    box-shadow:var(--shadow)}
+  .field{background:#fff;border:1.5px solid #e2e1d8;border-radius:14px;padding:13px 14px;font-size:14px;
+    color:var(--ink-soft);box-shadow:var(--shadow);margin-bottom:12px}
+  .field .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--green);font-weight:700;margin-bottom:3px}
+  .field .val{color:var(--ink);font-weight:600;font-size:15px}
+  .btn{background:var(--green);color:#fff;border:0;border-radius:14px;padding:15px;font-size:15px;font-weight:700;
+    text-align:center;box-shadow:0 6px 16px rgba(63,125,82,.35);width:100%;display:block;text-decoration:none}
+  .btn.ghost{background:transparent;color:var(--ink-soft);box-shadow:none;font-weight:600;font-size:13.5px;padding:12px}
+  .reassure{display:flex;align-items:center;gap:8px;justify-content:center;color:var(--ink-soft);font-size:12px;margin-top:12px}
+  .tip{background:#eaf2f6;border-left:4px solid var(--rosette);padding:11px 12px;border-radius:10px;font-size:12.5px;
+    line-height:1.45;margin-top:16px;color:#2b4a55}
+  .shared{display:flex;align-items:center;gap:-8px;margin:4px 0 14px;justify-content:center}
+  .shared .av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:22px;border:3px solid var(--canvas);box-shadow:var(--shadow)}
+  .av-mom{background:#f3e2ef} .av-you{background:#e2eef3;margin-left:-12px}
+  .mini-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:16px 0 6px}
+  .mini{height:64px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:var(--shadow)}
+  .m1{background:linear-gradient(150deg,#c9b27a,#8a6f3f)} .m2{background:linear-gradient(150deg,#7fae6e,#3f6f47)}
+  .m3{background:linear-gradient(150deg,#8fb6c4,#4d7f91)} .m4{background:linear-gradient(150deg,#b59ac2,#7a5f8c)}
+  .m5{background:linear-gradient(150deg,#a9bfa0,#6b8f74)} .m6{background:linear-gradient(150deg,#d4a98f,#a06a4f)}
+  .spacer{flex:1 1 auto}
+  .uphoto{height:150px;border-radius:16px;position:relative;margin:0 0 14px;box-shadow:var(--shadow);
+    background:linear-gradient(150deg,#c9b27a,#8a6f3f)}
+  .uphoto .e{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+  .reccard{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:13px;border-left:5px solid var(--green);margin-bottom:10px}
+  .reccard.ask{border-left-color:var(--bulbous)}
+  .rtop{display:flex;gap:9px;align-items:flex-start}
+  .rsub{font-size:11.5px;color:var(--ink-soft);font-weight:600;margin-top:2px}
+  .cbar{height:6px;border-radius:999px;background:#eef1ec;margin:9px 0 0;overflow:hidden}
+  .cbar span{display:block;height:100%;border-radius:999px;background:var(--green)}
+  .cands{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .cand{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;background:#f4f1ea;
+    padding:7px 11px;border-radius:999px}
+  .cand .cdot{width:14px;height:14px;border-radius:50%}
+  .cand em{font-style:normal;color:var(--ink-soft);font-weight:600;font-size:11px}
+  .cand.alt{background:var(--green);color:#fff}
+  .reviewbar{background:#fbe9d6;color:#9a5a23;font-weight:700;font-size:13px;padding:11px 14px;border-radius:12px;
+    display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .reviewbar .pill{margin-left:auto;background:#9a5a23;color:#fff;border-radius:999px;padding:2px 9px;font-size:12px}
+  .note{text-align:center;color:var(--ink-soft);font-size:11.5px;max-width:300px;line-height:1.5}
+</style>
+</head>
+<body>
+
+  <div class="pagehead">
+    <h1>🌿 Mom's first 5 minutes</h1>
+    <p>The onboarding flow + the "needs review" tray — the two screens most likely to make or break it. Scroll through.</p>
+  </div>
+
+  <div class="flow">
+
+    <!-- STEP 1 -->
+    <div class="steplabel"><span class="n">1</span> Mom taps the invite link</div>
+    <div class="phone"><div class="screen">
+      <div class="brand">🌿 Tillandsia</div>
+      <div class="pad">
+        <div class="avhero">🌿</div>
+        <h2 style="text-align:center">Carrie invited you<br>to your shared garden</h2>
+        <p class="lede" style="text-align:center">Track your air plants together — photos, watering, the works. No app store, no password.</p>
+        <div class="field"><div class="lbl">Your email</div><div class="val">mom@email.com</div></div>
+        <a class="btn">Email me a magic link →</a>
+        <div class="reassure">🔒 No password to remember</div>
+      </div>
+    </div></div>
+
+    <!-- STEP 2 -->
+    <div class="steplabel"><span class="n">2</span> Check email → one tap in</div>
+    <div class="phone"><div class="screen">
+      <div class="brand">🌿 Tillandsia</div>
+      <div class="pad" style="text-align:center">
+        <div class="avhero" style="background:#eaf2f6;font-size:34px">📬</div>
+        <h2>Check your email</h2>
+        <p class="lede">We sent a sign-in link to<br><b style="color:var(--ink)">mom@email.com</b>.<br>Tap it and you're in — that's it.</p>
+        <a class="btn ghost">Resend link</a>
+        <div class="tip">💡 The link expires in 1 hour and only works on your devices. Keeps your shared garden private.</div>
+      </div>
+    </div></div>
+
+    <!-- STEP 3 -->
+    <div class="steplabel"><span class="n">3</span> Welcome — it's shared</div>
+    <div class="phone"><div class="screen">
+      <div class="brand">🌿 Tillandsia</div>
+      <div class="pad">
+        <div class="shared"><span class="av av-mom">👩</span><span class="av av-you">🙋</span></div>
+        <h2 style="text-align:center">Welcome, Mom! 🌿</h2>
+        <p class="lede" style="text-align:center">This is <b style="color:var(--ink)">yours &amp; Carrie's</b> shared garden. Carrie already added 6 plants — anything you add shows up for both of you.</p>
+        <div class="mini-grid">
+          <div class="mini m1">🧅</div><div class="mini m2">🐙</div><div class="mini m3">🌿</div>
+          <div class="mini m4">❄️</div><div class="mini m5">🌱</div><div class="mini m6">🐍</div>
+        </div>
+        <a class="btn" style="margin-top:14px">📸 Add your first photo</a>
+        <a class="btn ghost">Look around first</a>
+      </div>
+    </div></div>
+
+    <!-- STEP 4 -->
+    <div class="steplabel"><span class="n">4</span> Snap → it recognizes &amp; sorts</div>
+    <div class="phone"><div class="screen">
+      <div class="brand">🌿 Tillandsia</div>
+      <div class="pad">
+        <h2 style="font-size:21px">Nice shot! 📸</h2>
+        <p class="lede" style="margin-bottom:14px">Figuring out which plant this is…</p>
+        <div class="uphoto"><div class="e">🧅</div></div>
+        <div class="reccard">
+          <div class="rtop"><span style="font-size:19px">✅</span><div><b>Sorted into "Fuzzy purple"</b><div class="rsub">High confidence · 94% · added by you</div></div></div>
+          <div class="cbar"><span style="width:94%"></span></div>
+        </div>
+        <a class="btn" style="margin-top:6px">Looks right ✓</a>
+        <a class="btn ghost">No — pick the right plant</a>
+      </div>
+    </div></div>
+
+    <!-- STEP 5 -->
+    <div class="steplabel"><span class="n">5</span> The "needs review" tray (the trust safety-net)</div>
+    <div class="phone"><div class="screen">
+      <div class="brand">🌿 Tillandsia</div>
+      <div class="pad">
+        <h2 style="font-size:22px">Needs your eye 👀</h2>
+        <p class="lede" style="margin-bottom:14px">A couple of photos look like twins — confirm and I'll learn them.</p>
+        <div class="reviewbar">⚠️ 2 photos to confirm <span class="pill">2</span></div>
+
+        <div class="reccard ask">
+          <div class="rtop"><span style="font-size:18px">🤔</span><div><b>Mom's photo · 1h ago</b><div class="rsub">Two pruinosa look almost identical</div></div></div>
+          <div class="cands">
+            <span class="cand"><span class="cdot m1"></span>Fuzzy purple <em>58%</em></span>
+            <span class="cand"><span class="cdot m6"></span>Caput <em>39%</em></span>
+            <span class="cand alt">＋ New</span>
+          </div>
+        </div>
+
+        <div class="reccard ask">
+          <div class="rtop"><span style="font-size:18px">🤔</span><div><b>Your photo · 3h ago</b><div class="rsub">Low light — hard to tell</div></div></div>
+          <div class="cands">
+            <span class="cand"><span class="cdot m4"></span>Little frosted <em>52%</em></span>
+            <span class="cand"><span class="cdot m5"></span>Frosty pup <em>44%</em></span>
+            <span class="cand alt">＋ New</span>
+          </div>
+        </div>
+        <p class="note" style="margin:14px auto 0">Below-confidence photos land here instead of being silently mis-sorted. Every tap teaches the recognizer.</p>
+      </div>
+    </div></div>
+
+    <p class="note" style="max-width:340px;margin-top:6px">Static mockups — gradients &amp; emoji stand in for real plant photos. The point is the <b>flow, the reassurance copy, and the trust safety-net</b>.</p>
+
+  </div>
+</body>
+</html>

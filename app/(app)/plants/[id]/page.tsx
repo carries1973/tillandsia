@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui';
 import { CARE_GROUP_META, PHOTO_BUCKET, type CareGroup, type Photo } from '@/lib/types';
 import SpecimenUpload from './SpecimenUpload';
 import AddObservation from './AddObservation';
+import EditPlant from './EditPlant';
 
 interface Observation {
   id: string;
@@ -38,12 +39,24 @@ export default async function PlantDetail({
   const { data: specimen } = await supabase
     .from('specimens')
     .select(
-      'id, name, notes, confident, acquired, species:species_id(slug, binomial, care_group, watering)'
+      'id, name, notes, confident, acquired, species_id, species:species_id(slug, binomial, care_group, watering)'
     )
     .eq('id', id)
     .eq('household_id', household.id)
     .maybeSingle();
   if (!specimen) notFound();
+
+  const { data: speciesList } = await supabase
+    .from('species')
+    .select('id, binomial, common_names')
+    .order('binomial');
+  const speciesOptions = (speciesList ?? []).map((sp) => {
+    const common = ((sp.common_names as string[] | null) ?? [])[0];
+    return {
+      id: sp.id as string,
+      label: common ? `${common} — ${sp.binomial}` : (sp.binomial as string),
+    };
+  });
 
   const species = specimen.species as unknown as
     | { slug: string; binomial: string; care_group: CareGroup; watering: string | null }
@@ -130,14 +143,20 @@ export default async function PlantDetail({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {meta ? <Badge color={meta.color}>{meta.label}</Badge> : null}
         {!specimen.confident ? <Badge color="#9a5a23">Provisional ID</Badge> : null}
-        {species ? (
-          <Link
-            href={`/species/${species.slug}`}
-            className="ml-auto text-sm font-semibold text-green"
-          >
-            Care guide →
-          </Link>
-        ) : null}
+        <div className="ml-auto flex items-center gap-3">
+          {species ? (
+            <Link href={`/species/${species.slug}`} className="text-sm font-semibold text-green">
+              Care guide →
+            </Link>
+          ) : null}
+          <EditPlant
+            specimenId={id}
+            name={specimen.name}
+            speciesId={(specimen.species_id as string | null) ?? null}
+            confident={specimen.confident}
+            species={speciesOptions}
+          />
+        </div>
       </div>
 
       {/* Current size summary */}

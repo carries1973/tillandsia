@@ -11,6 +11,29 @@ function num(v: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+// Rename a plant / correct its species / confirm the ID.
+export async function updateSpecimen(specimenId: string, formData: FormData) {
+  const { user, household } = await getSession();
+  if (!user || !household) return { error: 'Not signed in.' };
+
+  const name = String(formData.get('name') ?? '').trim();
+  if (!name) return { error: 'Give your plant a name.' };
+  const species_id = String(formData.get('species_id') ?? '').trim() || null;
+  const confident = formData.get('confident') === 'on';
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('specimens')
+    .update({ name, species_id, confident })
+    .eq('id', specimenId)
+    .eq('household_id', household.id);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/plants/${specimenId}`);
+  revalidatePath('/plants');
+  return { ok: true };
+}
+
 // Log a dated observation (measurements + note) — this is the progress history.
 export async function addObservation(specimenId: string, formData: FormData) {
   const { user } = await getSession();

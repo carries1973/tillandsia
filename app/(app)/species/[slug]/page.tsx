@@ -13,7 +13,7 @@ function vitals(s: Species) {
   const water = soakSafe
     ? 'Soak ~wk'
     : s.care_group === 'xeric_grey'
-      ? 'Mist ~5d'
+      ? 'Mist ~2wk'
       : 'Mist ~3d';
   const light = (s.light ?? 'Bright').split(/[ ,]/)[0];
   return [

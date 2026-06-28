@@ -12,11 +12,14 @@ interface QueueItem {
   file: File;
   preview: string;
   status: ItemStatus;
+  takenOn: string;
+  isBloom: boolean;
   error?: string;
 }
 
 let counter = 0;
 const nextKey = () => `q${Date.now()}_${counter++}`;
+const todayISO = () => new Date().toISOString().slice(0, 10);
 
 export default function PhotoUploader({
   householdId,
@@ -24,14 +27,20 @@ export default function PhotoUploader({
   specimenId,
   onUploaded,
   label = 'Add photos',
+  showDetails = false,
 }: {
   householdId: string;
   userId: string;
   specimenId?: string;
   onUploaded?: () => void;
   label?: string;
+  // When true, surface a "taken on" date + "Bloom photo" toggle so older
+  // shots (e.g. last year's bloom) can be backdated and flagged.
+  showDetails?: boolean;
 }) {
   const [items, setItems] = useState<QueueItem[]>([]);
+  const [takenOn, setTakenOn] = useState(todayISO());
+  const [isBloom, setIsBloom] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const update = (key: string, patch: Partial<QueueItem>) =>
@@ -59,7 +68,8 @@ export default function PhotoUploader({
           width,
           height,
           uploaded_by: userId,
-          taken_on: new Date().toISOString().slice(0, 10),
+          taken_on: item.takenOn,
+          is_bloom: item.isBloom,
         });
         if (rowErr) throw rowErr;
 
@@ -80,11 +90,17 @@ export default function PhotoUploader({
   const onPick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
+    // Snapshot the chosen date/flag now so they stick to this batch even if
+    // the controls change before the uploads finish.
+    const batchTakenOn = showDetails ? takenOn || todayISO() : todayISO();
+    const batchIsBloom = showDetails ? isBloom : false;
     const queued: QueueItem[] = files.map((file) => ({
       key: nextKey(),
       file,
       preview: URL.createObjectURL(file),
       status: 'queued',
+      takenOn: batchTakenOn,
+      isBloom: batchIsBloom,
     }));
     setItems((prev) => [...queued, ...prev]);
     queued.forEach(uploadItem);
@@ -93,6 +109,36 @@ export default function PhotoUploader({
 
   return (
     <div>
+      {showDetails && (
+        <div className="mb-3 flex flex-wrap items-end gap-3 rounded-card bg-green-tint px-4 py-3">
+          <div>
+            <label htmlFor="photo-taken-on" className="block text-xs font-semibold text-green-deep">
+              Taken on
+            </label>
+            <input
+              id="photo-taken-on"
+              type="date"
+              value={takenOn}
+              max={todayISO()}
+              onChange={(e) => setTakenOn(e.target.value)}
+              className="mt-1 min-h-[44px] rounded-xl border border-[#dfe3da] bg-white px-3 text-[16px] text-ink outline-none focus:border-green"
+            />
+          </div>
+          <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm font-semibold text-green-deep">
+            <input
+              type="checkbox"
+              checked={isBloom}
+              onChange={(e) => setIsBloom(e.target.checked)}
+              className="h-5 w-5 accent-green"
+            />
+            <span>🌸 Bloom photo</span>
+          </label>
+          <p className="w-full text-xs text-ink-soft">
+            Set the date these were taken — backdate older shots like last year&apos;s bloom.
+            Applies to the next photos you add.
+          </p>
+        </div>
+      )}
       <button
         type="button"
         onClick={() => inputRef.current?.click()}

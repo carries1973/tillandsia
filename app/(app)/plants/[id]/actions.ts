@@ -62,6 +62,8 @@ export async function addObservation(specimenId: string, formData: FormData) {
     String(formData.get('observed_on') ?? '').trim() ||
     new Date().toISOString().slice(0, 10);
 
+  const pupRaw = num(formData.get('pup_count'));
+
   const row = {
     specimen_id: specimenId,
     observed_on,
@@ -69,6 +71,8 @@ export async function addObservation(specimenId: string, formData: FormData) {
     span_cm: num(formData.get('span_cm')),
     longest_leaf_cm: num(formData.get('longest_leaf_cm')),
     bulb_cm: num(formData.get('bulb_cm')),
+    bloomed: formData.get('bloomed') === 'on',
+    pup_count: pupRaw == null ? null : Math.max(0, Math.round(pupRaw)),
     note: String(formData.get('note') ?? '').trim() || null,
     created_by: user.id,
   };

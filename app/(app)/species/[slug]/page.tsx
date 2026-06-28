@@ -5,12 +5,16 @@ import { CARE_GROUP_META, type CareGroup, type Species } from '@/lib/types';
 
 // Short "at a glance" vitals derived from the species data (prototype design).
 function vitals(s: Species) {
-  const water =
-    s.care_group === 'soft_rosette_soak_safe'
-      ? 'Soak ~wk'
-      : s.care_group === 'xeric_grey'
-        ? 'Mist ~5d'
-        : 'Mist ~3d';
+  // Soak-safe species (their watering text leads with "SOAK-SAFE") soak weekly,
+  // whatever their care group — e.g. grass-like T. juncea sits in "wispy" but
+  // wants a soak, not just misting.
+  const soakSafe =
+    s.care_group === 'soft_rosette_soak_safe' || /soak[\s-]?safe/i.test(s.watering ?? '');
+  const water = soakSafe
+    ? 'Soak ~wk'
+    : s.care_group === 'xeric_grey'
+      ? 'Mist ~5d'
+      : 'Mist ~3d';
   const light = (s.light ?? 'Bright').split(/[ ,]/)[0];
   return [
     { icon: '💧', value: water, key: 'Water' },

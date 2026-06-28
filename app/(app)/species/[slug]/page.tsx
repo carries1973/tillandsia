@@ -62,7 +62,7 @@ export default async function SpeciesDetail({
 
       {/* Hero banner — care-group colour wash with the name overlaid */}
       <div
-        className="relative mt-3 flex h-44 items-end overflow-hidden rounded-card p-4 text-white shadow-soft"
+        className="relative mt-3 flex h-44 items-end overflow-hidden rounded-card px-4 pb-12 pt-4 text-white shadow-soft"
         style={{
           background: `linear-gradient(135deg, ${meta.color} 0%, ${meta.color}cc 55%, rgba(31,42,35,.85) 100%)`,
         }}

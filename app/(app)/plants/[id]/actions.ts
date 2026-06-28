@@ -1,8 +1,27 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getSession } from '@/lib/data';
+
+// Remove a plant. Its photos return to the album (FK set null); its
+// observation log is removed. Photos are never deleted here.
+export async function deleteSpecimen(specimenId: string) {
+  const { user, household } = await getSession();
+  if (!user || !household) return { error: 'Not signed in.' };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('specimens')
+    .delete()
+    .eq('id', specimenId)
+    .eq('household_id', household.id);
+  if (error) return { error: error.message };
+
+  revalidatePath('/plants');
+  redirect('/plants');
+}
 
 function num(v: FormDataEntryValue | null): number | null {
   const s = String(v ?? '').trim();

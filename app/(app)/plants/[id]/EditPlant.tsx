@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui';
-import { updateSpecimen } from './actions';
+import { updateSpecimen, deleteSpecimen } from './actions';
 
 interface SpeciesOption {
   id: string;
@@ -25,6 +25,7 @@ export default function EditPlant({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   async function handle(fd: FormData) {
     setBusy(true);
@@ -33,6 +34,17 @@ export default function EditPlant({
     if (result?.error) setError(result.error);
     else setOpen(false);
     setBusy(false);
+  }
+
+  async function remove() {
+    setBusy(true);
+    setError('');
+    const result = await deleteSpecimen(specimenId);
+    // Success redirects; only an error returns here.
+    if (result?.error) {
+      setError(result.error);
+      setBusy(false);
+    }
   }
 
   if (!open) {
@@ -105,6 +117,43 @@ export default function EditPlant({
         >
           Cancel
         </button>
+      </div>
+
+      {/* Remove plant */}
+      <div className="mt-5 border-t border-[#eee9df] pt-4">
+        {!confirmRemove ? (
+          <button
+            type="button"
+            onClick={() => setConfirmRemove(true)}
+            className="text-sm font-semibold text-[#a23b3b]"
+          >
+            Remove this plant
+          </button>
+        ) : (
+          <div>
+            <p className="text-sm text-ink-soft">
+              Remove <strong className="text-ink">{name}</strong>? Its photos stay in your shared
+              album — only the plant and its progress log are removed.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={remove}
+                disabled={busy}
+                className="min-h-[44px] rounded-full bg-[#a23b3b] px-5 text-[15px] font-semibold text-white disabled:opacity-50"
+              >
+                {busy ? 'Removing…' : 'Yes, remove'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmRemove(false)}
+                className="min-h-[44px] rounded-full px-4 text-sm font-semibold text-ink-soft"
+              >
+                Keep it
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </form>
   );

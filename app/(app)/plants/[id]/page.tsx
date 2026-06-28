@@ -15,6 +15,8 @@ interface Observation {
   span_cm: number | null;
   longest_leaf_cm: number | null;
   bulb_cm: number | null;
+  bloomed: boolean;
+  pup_count: number | null;
   note: string | null;
 }
 
@@ -68,7 +70,9 @@ export default async function PlantDetail({
   const [{ data: obsData }, { data: photoData }] = await Promise.all([
     supabase
       .from('observations')
-      .select('id, observed_on, height_cm, span_cm, longest_leaf_cm, bulb_cm, note')
+      .select(
+        'id, observed_on, height_cm, span_cm, longest_leaf_cm, bulb_cm, bloomed, pup_count, note'
+      )
       .eq('specimen_id', id)
       .order('observed_on', { ascending: false })
       .order('created_at', { ascending: false }),
@@ -76,6 +80,7 @@ export default async function PlantDetail({
       .from('photos')
       .select('*')
       .eq('specimen_id', id)
+      .order('taken_on', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false }),
   ]);
 
@@ -100,6 +105,11 @@ export default async function PlantDetail({
   const latest = observations.find(
     (o) => o.height_cm || o.span_cm || o.longest_leaf_cm || o.bulb_cm
   );
+
+  // Lifecycle: a Tillandsia blooms once, then pups. Surface the most recent of
+  // each so the plant's whole arc reads at a glance (observations are newest-first).
+  const lastBloom = observations.find((o) => o.bloomed);
+  const latestPups = observations.find((o) => o.pup_count != null);
   const measure = (o: Observation) =>
     [
       o.height_cm != null ? `↥ ${o.height_cm}${units} tall` : null,
@@ -170,6 +180,23 @@ export default async function PlantDetail({
         </div>
       ) : null}
 
+      {/* Lifecycle: bloom + pups */}
+      {lastBloom || latestPups ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {lastBloom ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f3e6f4] px-3 py-1.5 text-sm font-semibold text-[#7d4a86]">
+              🌸 Bloomed {fmtDate(lastBloom.observed_on)}
+            </span>
+          ) : null}
+          {latestPups ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-tint px-3 py-1.5 text-sm font-semibold text-green-deep">
+              🌱 {latestPups.pup_count} {latestPups.pup_count === 1 ? 'pup' : 'pups'}
+              <span className="font-normal text-ink-soft">· {fmtDate(latestPups.observed_on)}</span>
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
       {/* Log an update */}
       <div className="mt-4">
         <AddObservation specimenId={id} bulbous={bulbous} units={units} />
@@ -190,13 +217,25 @@ export default async function PlantDetail({
               return (
                 <li key={o.id} className="relative">
                   <span
-                    className="absolute -left-[26px] top-1 h-3 w-3 rounded-full bg-green ring-4 ring-canvas"
+                    className={`absolute -left-[26px] top-1 h-3 w-3 rounded-full ring-4 ring-canvas ${
+                      o.bloomed ? 'bg-[#a86bb1]' : 'bg-green'
+                    }`}
                     aria-hidden="true"
                   />
                   <div className="rounded-card bg-card px-4 py-3 shadow-soft">
                     <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">
                       {fmtDate(o.observed_on)}
                     </p>
+                    {o.bloomed || o.pup_count != null ? (
+                      <p className="mt-1 flex flex-wrap gap-2 text-sm font-semibold">
+                        {o.bloomed ? <span className="text-[#7d4a86]">🌸 Bloomed</span> : null}
+                        {o.pup_count != null ? (
+                          <span className="text-green-deep">
+                            🌱 {o.pup_count} {o.pup_count === 1 ? 'pup' : 'pups'}
+                          </span>
+                        ) : null}
+                      </p>
+                    ) : null}
                     {m.length ? (
                       <p className="mt-1 text-sm font-semibold text-ink">{m.join('  ·  ')}</p>
                     ) : null}
@@ -222,18 +261,30 @@ export default async function PlantDetail({
         {photos.length > 0 ? (
           <ul className="grid grid-cols-3 gap-3">
             {photos.map((p) => (
-              <li key={p.id} className="overflow-hidden rounded-2xl bg-[#ece9e1] shadow-soft">
+              <li key={p.id} className="relative overflow-hidden rounded-2xl bg-[#ece9e1] shadow-soft">
                 {urls[p.storage_path] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={urls[p.storage_path]}
-                    alt={`${specimen.name} on ${p.taken_on ?? ''}`}
+                    alt={`${specimen.name}${p.is_bloom ? ' in bloom' : ''}${
+                      p.taken_on ? ` on ${fmtDate(p.taken_on)}` : ''
+                    }`}
                     loading="lazy"
                     className="aspect-square w-full object-cover"
                   />
                 ) : (
                   <div className="skeleton aspect-square w-full" aria-hidden="true" />
                 )}
+                {p.is_bloom ? (
+                  <span className="absolute left-1.5 top-1.5 rounded-full bg-[#7d4a86]/90 px-2 py-0.5 text-[11px] font-bold text-white">
+                    🌸 Bloom
+                  </span>
+                ) : null}
+                {p.taken_on ? (
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 to-transparent px-2 pb-1 pt-4 text-[11px] font-semibold text-white">
+                    {fmtDate(p.taken_on)}
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>

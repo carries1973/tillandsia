@@ -18,6 +18,7 @@ export default function SpecimenUpload({
       householdId={householdId}
       userId={userId}
       specimenId={specimenId}
+      showDetails
       onUploaded={() => router.refresh()}
     />
   );

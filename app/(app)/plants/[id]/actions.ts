@@ -53,6 +53,27 @@ export async function updateSpecimen(specimenId: string, formData: FormData) {
   return { ok: true };
 }
 
+// Apply an AI species suggestion to a plant. High confidence → mark confident.
+export async function setSpecies(specimenId: string, slug: string, confident: boolean) {
+  const { user, household } = await getSession();
+  if (!user || !household) return { error: 'Not signed in.' };
+
+  const supabase = await createClient();
+  const { data: sp } = await supabase.from('species').select('id').eq('slug', slug).maybeSingle();
+  if (!sp) return { error: 'Unknown species.' };
+
+  const { error } = await supabase
+    .from('specimens')
+    .update({ species_id: sp.id, confident })
+    .eq('id', specimenId)
+    .eq('household_id', household.id);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/plants/${specimenId}`);
+  revalidatePath('/plants');
+  return { ok: true };
+}
+
 // Log a dated observation (measurements + note) — this is the progress history.
 export async function addObservation(specimenId: string, formData: FormData) {
   const { user } = await getSession();

@@ -7,6 +7,7 @@ import { CARE_GROUP_META, PHOTO_BUCKET, type CareGroup, type Photo } from '@/lib
 import SpecimenUpload from './SpecimenUpload';
 import AddObservation from './AddObservation';
 import EditPlant from './EditPlant';
+import IdentifyButton from './IdentifyButton';
 
 interface Observation {
   id: string;
@@ -167,6 +168,13 @@ export default async function PlantDetail({
             {measure(latest).join('  ·  ')}
             <span className="font-normal"> — {fmtDate(latest.observed_on)}</span>
           </p>
+        </div>
+      ) : null}
+
+      {/* AI identify (Phase 2A) */}
+      {!specimen.confident ? (
+        <div className="mt-4">
+          <IdentifyButton specimenId={id} />
         </div>
       ) : null}
 

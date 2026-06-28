@@ -28,8 +28,17 @@ export default async function SpeciesPage() {
             return (
               <li key={s.slug as string}>
                 <Link href={`/species/${s.slug}`}>
-                  <Card className="flex items-center gap-3 p-4">
-                    <div className="text-2xl" aria-hidden="true">
+                  <Card className="flex items-center gap-3 overflow-hidden p-4">
+                    <span
+                      className="-my-4 -ml-4 mr-1 self-stretch"
+                      style={{ width: 6, background: meta.color }}
+                      aria-hidden="true"
+                    />
+                    <div
+                      className="flex h-11 w-11 items-center justify-center rounded-full text-2xl"
+                      style={{ background: `${meta.color}22` }}
+                      aria-hidden="true"
+                    >
                       {meta.emoji}
                     </div>
                     <div className="min-w-0 flex-1">

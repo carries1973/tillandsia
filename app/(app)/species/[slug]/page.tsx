@@ -11,30 +11,26 @@ function vitals(s: Species) {
       : s.care_group === 'xeric_grey'
         ? 'Mist ~5d'
         : 'Mist ~3d';
-  const group =
-    s.care_group === 'bulbous_no_soak'
-      ? 'No-soak'
-      : s.care_group === 'soft_rosette_soak_safe'
-        ? 'Soak-safe'
-        : s.care_group === 'xeric_grey'
-          ? 'Xeric'
-          : 'Wispy';
   const light = (s.light ?? 'Bright').split(/[ ,]/)[0];
   return [
     { icon: '💧', value: water, key: 'Water' },
     { icon: '☀️', value: light, key: 'Light' },
     { icon: '📏', value: s.max_size_cm ? `${s.max_size_cm} cm` : '—', key: 'Size' },
-    { icon: '🌿', value: group, key: 'Group' },
+    { icon: '⏱️', value: s.dry_time ?? '—', key: 'Dry by' },
+    { icon: '💦', value: s.humidity ?? '—', key: 'Humidity' },
+    { icon: '📊', value: s.difficulty ?? '—', key: 'Level' },
   ];
 }
 
 const SECTIONS: { icon: string; label: string; field: keyof Species }[] = [
   { icon: '💧', label: 'Watering', field: 'watering' },
   { icon: '☀️', label: 'Light', field: 'light' },
-  { icon: '🧪', label: 'Fertilizer', field: 'fertilizer' },
   { icon: '🌬️', label: 'Air & drying', field: 'air' },
+  { icon: '🧪', label: 'Fertilizer', field: 'fertilizer' },
   { icon: '🌸', label: 'Bloom', field: 'bloom' },
-  { icon: '🌱', label: 'Pups', field: 'pups' },
+  { icon: '🌱', label: 'Pups & propagation', field: 'propagation' },
+  { icon: '🩺', label: 'Troubleshooting', field: 'troubleshooting' },
+  { icon: '🚫', label: 'Common mistakes', field: 'common_mistakes' },
   { icon: '🪴', label: 'Display', field: 'display' },
   { icon: '❄️', label: 'Calgary notes', field: 'calgary_notes' },
   { icon: '✨', label: 'Trichomes', field: 'trichome_notes' },
@@ -54,26 +50,39 @@ export default async function SpeciesDetail({
   const common = s.common_names?.[0];
   const sections = SECTIONS.filter((sec) => s[sec.field]);
 
+  const heroStyle = s.hero_image_url
+    ? {
+        backgroundImage: `linear-gradient(180deg, rgba(31,42,35,.15) 0%, rgba(31,42,35,.85) 100%), url('${s.hero_image_url}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : {
+        background: `linear-gradient(135deg, ${meta.color} 0%, ${meta.color}cc 55%, rgba(31,42,35,.85) 100%)`,
+      };
+
   return (
     <div className="pb-4">
       <Link href="/species" className="text-sm font-semibold text-green">
         ← Care sheets
       </Link>
 
-      {/* Hero banner — care-group colour wash with the name overlaid */}
+      {/* Hero banner — real photo when we have one, else a care-group colour wash */}
       <div
-        className="relative mt-3 flex h-44 items-end overflow-hidden rounded-card px-4 pb-12 pt-4 text-white shadow-soft"
-        style={{
-          background: `linear-gradient(135deg, ${meta.color} 0%, ${meta.color}cc 55%, rgba(31,42,35,.85) 100%)`,
-        }}
+        className="relative mt-3 flex h-52 items-end overflow-hidden rounded-card px-4 pb-12 pt-4 text-white shadow-soft"
+        style={heroStyle}
       >
-        <span
-          className="pointer-events-none absolute -right-3 -top-5 text-[120px] leading-none opacity-25"
-          aria-hidden="true"
-        >
-          {meta.emoji}
-        </span>
+        {!s.hero_image_url ? (
+          <span
+            className="pointer-events-none absolute -right-3 -top-5 text-[120px] leading-none opacity-25"
+            aria-hidden="true"
+          >
+            {meta.emoji}
+          </span>
+        ) : null}
         <div className="relative">
+          <span className="mb-1 inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold backdrop-blur">
+            {meta.emoji} {meta.label}
+          </span>
           <h1 className="font-display text-2xl font-extrabold leading-tight drop-shadow">
             {common ?? s.binomial}
           </h1>
@@ -85,12 +94,9 @@ export default async function SpeciesDetail({
       </div>
 
       {/* At-a-glance vitals — overlap the hero like the prototype */}
-      <div className="relative z-10 -mt-8 grid grid-cols-4 gap-2 px-1">
+      <div className="relative z-10 -mt-8 grid grid-cols-3 gap-2 px-1">
         {vitals(s).map((v) => (
-          <div
-            key={v.key}
-            className="rounded-2xl bg-card px-1 py-2.5 text-center shadow-soft"
-          >
+          <div key={v.key} className="rounded-2xl bg-card px-1 py-2.5 text-center shadow-soft">
             <div className="text-lg" aria-hidden="true">
               {v.icon}
             </div>
@@ -106,6 +112,16 @@ export default async function SpeciesDetail({
         {s.mesic_xeric ? (
           <span className="rounded-full bg-green-tint px-3 py-1 text-xs font-semibold text-green-deep">
             {s.mesic_xeric}
+          </span>
+        ) : null}
+        {s.bloom_season ? (
+          <span className="rounded-full bg-green-tint px-3 py-1 text-xs font-semibold text-green-deep">
+            🌸 Blooms {s.bloom_season}
+          </span>
+        ) : null}
+        {s.temp_range ? (
+          <span className="rounded-full bg-green-tint px-3 py-1 text-xs font-semibold text-green-deep">
+            🌡️ {s.temp_range}
           </span>
         ) : null}
         {s.native_range ? (

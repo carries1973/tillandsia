@@ -64,6 +64,16 @@ export interface Species {
   display: string | null;
   calgary_notes: string | null;
   sources: string[];
+  // richer care-sheet fields (migration 0004)
+  humidity: string | null;
+  temp_range: string | null;
+  bloom_season: string | null;
+  dry_time: string | null;
+  difficulty: string | null;
+  propagation: string | null;
+  troubleshooting: string | null;
+  common_mistakes: string | null;
+  hero_image_url: string | null;
   created_at: string;
 }
 

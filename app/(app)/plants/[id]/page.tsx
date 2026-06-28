@@ -2,9 +2,28 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/data';
 import { createClient } from '@/lib/supabase/server';
-import { Card, PageTitle, Badge } from '@/components/ui';
-import { CARE_GROUP_META, type CareGroup } from '@/lib/types';
+import { Badge } from '@/components/ui';
+import { CARE_GROUP_META, PHOTO_BUCKET, type CareGroup, type Photo } from '@/lib/types';
 import SpecimenUpload from './SpecimenUpload';
+import AddObservation from './AddObservation';
+
+interface Observation {
+  id: string;
+  observed_on: string;
+  height_cm: number | null;
+  span_cm: number | null;
+  longest_leaf_cm: number | null;
+  bulb_cm: number | null;
+  note: string | null;
+}
+
+function fmtDate(iso: string) {
+  return new Date(iso + 'T00:00:00').toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
 
 export default async function PlantDetail({
   params,
@@ -12,7 +31,7 @@ export default async function PlantDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { user, household } = await getSession();
+  const { user, household, profile } = await getSession();
   if (!user || !household) return null;
 
   const supabase = await createClient();
@@ -24,67 +43,183 @@ export default async function PlantDetail({
     .eq('id', id)
     .eq('household_id', household.id)
     .maybeSingle();
-
   if (!specimen) notFound();
 
   const species = specimen.species as unknown as
     | { slug: string; binomial: string; care_group: CareGroup; watering: string | null }
     | null;
   const meta = species ? CARE_GROUP_META[species.care_group] : null;
+  const bulbous = species?.care_group === 'bulbous_no_soak';
+  const units = profile?.units ?? 'cm';
 
-  const { count: photoCount } = await supabase
-    .from('photos')
-    .select('id', { count: 'exact', head: true })
-    .eq('specimen_id', id);
+  const [{ data: obsData }, { data: photoData }] = await Promise.all([
+    supabase
+      .from('observations')
+      .select('id, observed_on, height_cm, span_cm, longest_leaf_cm, bulb_cm, note')
+      .eq('specimen_id', id)
+      .order('observed_on', { ascending: false })
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('photos')
+      .select('*')
+      .eq('specimen_id', id)
+      .order('created_at', { ascending: false }),
+  ]);
+
+  const observations = (obsData as Observation[]) ?? [];
+  const photos = (photoData as Photo[]) ?? [];
+
+  // Sign photo URLs (private bucket).
+  let urls: Record<string, string> = {};
+  if (photos.length) {
+    const { data: signed } = await supabase.storage
+      .from(PHOTO_BUCKET)
+      .createSignedUrls(photos.map((p) => p.storage_path), 60 * 60);
+    urls = Object.fromEntries(
+      (signed ?? [])
+        .filter((d) => d.signedUrl && d.path)
+        .map((d) => [d.path as string, d.signedUrl as string])
+    );
+  }
+  const coverUrl = photos[0] ? urls[photos[0].storage_path] : undefined;
+
+  // Latest non-null measurements for the "current size" summary.
+  const latest = observations.find(
+    (o) => o.height_cm || o.span_cm || o.longest_leaf_cm || o.bulb_cm
+  );
+  const measure = (o: Observation) =>
+    [
+      o.height_cm != null ? `↥ ${o.height_cm}${units} tall` : null,
+      o.span_cm != null ? `↔ ${o.span_cm}${units} wide` : null,
+      o.longest_leaf_cm != null ? `🌿 ${o.longest_leaf_cm}${units} leaf` : null,
+      o.bulb_cm != null ? `🧅 ${o.bulb_cm}${units} bulb` : null,
+    ].filter(Boolean) as string[];
 
   return (
-    <div>
+    <div className="pb-4">
       <Link href="/plants" className="text-sm font-semibold text-green">
         ← Plants
       </Link>
-      <div className="mt-2 flex items-center gap-2">
-        <span className="text-3xl" aria-hidden="true">
-          {meta?.emoji ?? '🌿'}
-        </span>
-        <PageTitle sub={species?.binomial ?? 'Species not set'}>{specimen.name}</PageTitle>
+
+      {/* Cover photo + identity */}
+      <div
+        className="relative mt-3 flex h-44 items-end overflow-hidden rounded-card px-4 pb-4 text-white shadow-soft"
+        style={
+          coverUrl
+            ? {
+                backgroundImage: `linear-gradient(180deg, rgba(31,42,35,.1), rgba(31,42,35,.82)), url('${coverUrl}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : { background: `linear-gradient(135deg, ${meta?.color ?? '#3f7d52'}, rgba(31,42,35,.85))` }
+        }
+      >
+        {!coverUrl ? (
+          <span className="absolute -right-3 -top-5 text-[120px] opacity-25" aria-hidden="true">
+            {meta?.emoji ?? '🌿'}
+          </span>
+        ) : null}
+        <div className="relative">
+          <h1 className="font-display text-2xl font-extrabold drop-shadow">{specimen.name}</h1>
+          {species ? (
+            <p className="text-[13px] italic opacity-95 drop-shadow">{species.binomial}</p>
+          ) : null}
+        </div>
       </div>
 
-      {!specimen.confident ? (
-        <div className="mb-4">
-          <Badge color="#9a5a23">Provisional ID — confirm the species when you&apos;re sure</Badge>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {meta ? <Badge color={meta.color}>{meta.label}</Badge> : null}
+        {!specimen.confident ? <Badge color="#9a5a23">Provisional ID</Badge> : null}
+        {species ? (
+          <Link
+            href={`/species/${species.slug}`}
+            className="ml-auto text-sm font-semibold text-green"
+          >
+            Care guide →
+          </Link>
+        ) : null}
+      </div>
+
+      {/* Current size summary */}
+      {latest ? (
+        <div className="mt-4 rounded-card bg-green-tint px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-green-deep">Latest size</p>
+          <p className="mt-1 text-sm font-semibold text-green-deep">
+            {measure(latest).join('  ·  ')}
+            <span className="font-normal"> — {fmtDate(latest.observed_on)}</span>
+          </p>
         </div>
       ) : null}
 
-      {species ? (
-        <Card className="mb-4 p-5">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-ink">{meta?.label}</span>
-            <Link href={`/species/${species.slug}`} className="text-sm font-semibold text-green">
-              Full care sheet →
-            </Link>
-          </div>
-          {species.watering ? (
-            <p className="mt-2 text-sm text-ink-soft">💧 {species.watering}</p>
-          ) : null}
-        </Card>
-      ) : null}
+      {/* Log an update */}
+      <div className="mt-4">
+        <AddObservation specimenId={id} bulbous={bulbous} units={units} />
+      </div>
 
-      {specimen.notes ? (
-        <Card className="mb-4 p-5">
-          <p className="text-sm font-semibold text-ink">Notes</p>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-ink-soft">{specimen.notes}</p>
-        </Card>
-      ) : null}
+      {/* Progress timeline */}
+      <section className="mt-6">
+        <h2 className="mb-3 font-display text-xl font-bold text-ink">Progress</h2>
+        {observations.length === 0 ? (
+          <p className="rounded-card bg-card px-4 py-6 text-center text-sm text-ink-soft shadow-soft">
+            No updates yet. Log this plant&apos;s size and a note today — then again in a few weeks
+            to watch it grow. 🌱
+          </p>
+        ) : (
+          <ol className="relative space-y-3 border-l-2 border-[#e6e3da] pl-5">
+            {observations.map((o) => {
+              const m = measure(o);
+              return (
+                <li key={o.id} className="relative">
+                  <span
+                    className="absolute -left-[26px] top-1 h-3 w-3 rounded-full bg-green ring-4 ring-canvas"
+                    aria-hidden="true"
+                  />
+                  <div className="rounded-card bg-card px-4 py-3 shadow-soft">
+                    <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">
+                      {fmtDate(o.observed_on)}
+                    </p>
+                    {m.length ? (
+                      <p className="mt-1 text-sm font-semibold text-ink">{m.join('  ·  ')}</p>
+                    ) : null}
+                    {o.note ? <p className="mt-1 text-sm text-ink-soft">{o.note}</p> : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </section>
 
-      <Card className="p-5">
-        <p className="text-sm font-semibold text-ink">
-          Photos {photoCount ? `· ${photoCount}` : ''}
-        </p>
-        <p className="mt-1 mb-3 text-sm text-ink-soft">
-          Add a photo of this plant — it also shows in the shared album.
-        </p>
-        <SpecimenUpload householdId={household.id} userId={user.id} specimenId={id} />
-      </Card>
+      {/* Photos for this plant */}
+      <section className="mt-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-display text-xl font-bold text-ink">
+            Photos{photos.length ? ` · ${photos.length}` : ''}
+          </h2>
+        </div>
+        <div className="mb-4">
+          <SpecimenUpload householdId={household.id} userId={user.id} specimenId={id} />
+        </div>
+        {photos.length > 0 ? (
+          <ul className="grid grid-cols-3 gap-3">
+            {photos.map((p) => (
+              <li key={p.id} className="overflow-hidden rounded-2xl bg-[#ece9e1] shadow-soft">
+                {urls[p.storage_path] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={urls[p.storage_path]}
+                    alt={`${specimen.name} on ${p.taken_on ?? ''}`}
+                    loading="lazy"
+                    className="aspect-square w-full object-cover"
+                  />
+                ) : (
+                  <div className="skeleton aspect-square w-full" aria-hidden="true" />
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
     </div>
   );
 }

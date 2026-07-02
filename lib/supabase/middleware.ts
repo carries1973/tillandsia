@@ -34,6 +34,8 @@ export async function updateSession(request: NextRequest) {
   const isPublic =
     path === '/login' ||
     path.startsWith('/auth') ||
+    path === '/trip' ||
+    path.startsWith('/trip/') ||
     path === '/manifest.webmanifest' ||
     path === '/sw.js';
 

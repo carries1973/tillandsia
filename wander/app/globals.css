@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #181b33;
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: #20233c;
+  -webkit-font-smoothing: antialiased;
+}
+
+input {
+  font-family: "DM Sans", sans-serif;
+  outline: none;
+  border: none;
+  background: transparent;
+}
+
+/* hide scrollbars to match the prototype's device chrome */
+.scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}

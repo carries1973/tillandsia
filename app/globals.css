@@ -42,3 +42,12 @@ body {
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
 }
+
+/* Scrollbar-hiding for the /trip (Wander) app's scroll containers. */
+.scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}

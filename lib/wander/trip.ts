@@ -826,16 +826,52 @@ function buildDays(): Day[] {
           ],
         },
         {
+          id: "d4-bags",
+          time: "2:00 PM",
+          transit: { label: "Near your base · check out is 11 AM" },
+          options: [
+            P("Stash the bags", "LUGGAGE", "Logistics", "Mercier-Est / east end", "hotel", {
+              match: "Between check-out & the 7:45 flight",
+              price: "≈ $6–8 / bag",
+              hours: "Check out by 11 AM · collect by ≈4:45 PM",
+              why: "Check out in the morning and go hands-free until the airport car. Easiest: ask the Auberge front desk to hold the bags (often free for guests). Otherwise book a Bounce spot — the most consistent reviews — near a Green-line metro; LuggageHero works too but is hit-or-miss. Collect by ≈4:45 PM for the 5:15 car.",
+              tradeoff: "Front-desk hold is simplest; Bounce is the paid backup.",
+              lat: 45.5762,
+              lng: -73.549,
+            }),
+          ],
+        },
+        {
           id: "d4-prom",
           time: "2:45 PM",
-          transit: { label: "Walk · collect the bags by ≈5 PM" },
+          optionMeta: {
+            need: "Sunday afternoon — calm near base, or catch Pride downtown",
+            notes:
+              "Default is a low-key near-hotel afternoon so you stay close to the bags and out of the parade crush. Swap in the Nacarat terrace only if catching Pride matters more than a calm run to the airport.",
+          },
+          transit: { label: "Walk · collect the bags by ≈4:45 PM" },
           options: [
             P("Promenade Ontario", "NEIGHBOURHOOD", "Outdoors", "Hochelaga", "cafeNeon", {
-              match: "Local life · near base",
+              match: "Calm · near base",
               price: "Free",
-              why: "A relaxed near-hotel afternoon that keeps you close to the bags and out of the downtown Pride-parade crush before the flight.",
+              why: "A relaxed near-hotel afternoon that keeps you close to the bags and well out of the downtown Pride-parade closures before the flight — the low-stress default.",
+              tradeoff: "Calmest, closest to the bags — no downtown crush.",
               lat: 45.5442,
               lng: -73.5432,
+            }),
+            P("Nacarat Terrace — Pride view", "EVENT", "Trending", "Downtown (Fairmont QE)", "skyline", {
+              match: "Catch Pride before the flight",
+              price: "Ticketed · book ahead",
+              hours: "Parade view from noon · book ahead",
+              why: "The 3rd-floor terrace at Fairmont The Queen Elizabeth (900 René-Lévesque O.) with a direct parade view from noon. A table only comes with the seated “Pride BBQ” format — the standard terrace ticket is access-only, so decide which you’re booking. Wheelchair-accessible, and it moves indoors if it rains.",
+              dietNote:
+                "The Pride BBQ isn’t celiac-safe — eat your dedicated-GF lunch first and treat this as the view.",
+              tradeoff:
+                "Front-row Pride — but a downtown commitment that gives up the calm morning and tightens the airport run.",
+              uncertainty:
+                "Confirm which ticket you want (access-only vs seated BBQ table) and the date/time at the venue before booking.",
+              lat: 45.4996,
+              lng: -73.5685,
             }),
           ],
         },
@@ -848,7 +884,7 @@ function buildDays(): Day[] {
           options: [
             P("Fly out of YUL", "FLIGHT", "Anchors", "Montréal-Trudeau", "airport", {
               hours: "Depart 7:45 PM · be at YUL by 6:15",
-              why: "Pride’s 1 PM parade closes René-Lévesque and snarls the 747 route — a direct car from the east end sidesteps all of it and gets you to YUL with buffer.",
+              why: "Montréal Pride’s parade runs Sun Aug 9 from 1 PM along René-Lévesque (St-Mathieu → Sanguinet), roughly 1–4 PM — closing the 747 airport-bus route. A direct car from the east end sidesteps all of it and gets you to YUL with buffer.",
               lat: 45.4706,
               lng: -73.7408,
             }),
@@ -1045,13 +1081,13 @@ const optionalIdeas: OptionalIdea[] = [
   {
     name: "Nacarat Terrace — Pride view",
     cat: "Trending",
-    neigh: "Downtown",
-    why: "For Aug 9: a bookable terrace table with a direct view of the Pride parade plus a BBQ ticket — the best front-row-and-a-meal option if you want to catch it before heading to YUL.",
-    weather: "Clear",
+    neigh: "Downtown · Fairmont QE",
+    why: "For Aug 9: the 3rd-floor terrace at Fairmont The Queen Elizabeth (900 René-Lévesque O.), with a direct parade view from noon. A table comes only with the seated “Pride BBQ” format — the standard terrace ticket is access-only, so book the one you want. Wheelchair-accessible; moves indoors if it rains. A downtown commitment that trades the calm morning for the front row.",
+    weather: "Any",
     img: uimg(IMG.skyline),
     seed: "opt-nacarat",
-    lat: 45.4995,
-    lng: -73.5698,
+    lat: 45.4996,
+    lng: -73.5685,
   },
 
   // ---------- HIDDEN GEMS ----------
@@ -1143,7 +1179,7 @@ const contingencies: ContingencyRow[] = [
   {
     trigger: "Pride parade · Sunday",
     icon: "flag",
-    text: "The 1 PM parade closes René-Lévesque — take a direct car from the east end to YUL rather than the 747. Want to catch it first? Nacarat Terrace has bookable parade-view tables (see Optional ideas).",
+    text: "Montréal Pride runs Sun Aug 9 from 1 PM along René-Lévesque (St-Mathieu → Sanguinet), roughly 1–4 PM — closing the 747 airport-bus route. Take a direct car from the east end to YUL instead. Want to catch it first? The Nacarat terrace at Fairmont QE has parade views from noon (see Optional ideas).",
   },
 ];
 

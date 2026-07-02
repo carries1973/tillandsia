@@ -78,15 +78,22 @@ export default function Wander() {
     const totalStops = M.days.reduce((n, d) => n + d.segments.length, 0);
     const awayLabel = away == null ? "" : ` · ${away} day${away === 1 ? "" : "s"} away`;
     const fSeg = M.days[0].segments[0];
-    const catList = ["Dining", "Art & Culture", "Markets", "Cafés", "Outdoors"];
+    const catList = ["Must-see", "Shopping", "Trending", "Dining", "Art & Culture", "Markets", "Cafés", "Outdoors"];
     const catIcon: Record<string, string> = {
+      "Must-see": "📍",
+      Shopping: "🛍️",
+      Trending: "✨",
       Dining: "🍽",
       "Art & Culture": "🎨",
       Markets: "🥬",
       "Cafés": "☕",
       Outdoors: "🌳",
+      "Hidden gem": "💎",
+      "Self-care": "🧖",
     };
-    const countCat = (c: string) => allOpts.filter((x) => cur(x.seg).cat === c).length;
+    const countCat = (c: string) =>
+      allOpts.filter((x) => cur(x.seg).cat === c).length +
+      M.optionalIdeas.filter((o) => o.cat === c).length;
 
     return (
       <div className="scroll" style={css("height:100%;overflow-y:auto;padding:0 0 104px")}>
@@ -414,8 +421,20 @@ export default function Wander() {
 
   // ============================ EXPLORE ============================
   function renderExplore() {
-    const catList = ["Dining", "Art & Culture", "Markets", "Cafés", "Outdoors"];
-    const cats = ["All", ...catList, "Anchors"];
+    const cats = [
+      "All",
+      "Must-see",
+      "Shopping",
+      "Trending",
+      "Hidden gem",
+      "Dining",
+      "Art & Culture",
+      "Markets",
+      "Cafés",
+      "Outdoors",
+      "Self-care",
+      "Anchors",
+    ];
     const q = S.query.trim().toLowerCase();
     let items = allOpts.filter((x) => {
       const p = cur(x.seg);
@@ -439,11 +458,24 @@ export default function Wander() {
       return true;
     });
 
+    // Extra ideas — shopping, must-sees, hidden gems, trends, self-care.
+    const ideaItems = M.optionalIdeas.filter((o) => {
+      if (S.exploreSaved && !S.savedOpt[o.name]) return false;
+      if (S.exploreCat === "Anchors") return false;
+      if (S.exploreCat !== "All" && o.cat !== S.exploreCat) return false;
+      if (q) {
+        const hay = (o.name + " " + o.neigh + " " + o.cat + " " + o.why).toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+    const total = items.length + ideaItems.length;
+
     return (
       <div className="scroll" style={css("height:100%;overflow-y:auto;padding:52px 0 104px")}>
         <div style={css("padding:6px 20px 0")}>
           <div style={css("font-family:'Newsreader',serif;font-size:32px;font-weight:500;letter-spacing:-.4px")}>Explore</div>
-          <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>Every stop across your four days.</div>
+          <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>Every stop, plus shopping, must-sees, hidden gems &amp; trends — tap ♥ to save.</div>
         </div>
         <div style={css("margin:15px 20px 0;background:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 20px -16px rgba(24,27,51,.5)")}>
           <I.Search size={17} />
@@ -461,14 +493,14 @@ export default function Wander() {
           })}
         </div>
         <div style={css("display:flex;align-items:center;justify-content:space-between;padding:16px 20px 6px")}>
-          <span style={css("font-size:12px;font-weight:600;color:#9A9EAD")}>{items.length} place{items.length === 1 ? "" : "s"}</span>
+          <span style={css("font-size:12px;font-weight:600;color:#9A9EAD")}>{total} place{total === 1 ? "" : "s"}</span>
           <div onClick={() => setState((st) => ({ exploreSaved: !st.exploreSaved }))} style={css("display:flex;align-items:center;gap:6px;cursor:pointer")}>
             <I.Heart size={14} color={S.exploreSaved ? "#B5484E" : "#6B7085"} fill={S.exploreSaved ? "#B5484E" : "none"} sw={1.9} />
             <span style={{ ...css("font-size:12.5px;font-weight:600"), color: S.exploreSaved ? "#B5484E" : "#5B6076" }}>Saved</span>
           </div>
         </div>
         <div style={css("padding:2px 20px 0")}>
-          {items.length === 0 && <div style={css("text-align:center;color:#9A9EAD;font-size:13.5px;padding:50px 20px;font-weight:500")}>Nothing matches yet — try another interest or search term.</div>}
+          {total === 0 && <div style={css("text-align:center;color:#9A9EAD;font-size:13.5px;padding:50px 20px;font-weight:500")}>Nothing matches yet — try another interest or search term.</div>}
           {items.map((x) => {
             const p = cur(x.seg);
             return (
@@ -487,6 +519,38 @@ export default function Wander() {
                       </span>
                     )}
                     <span style={css("font-size:11.5px;font-weight:500;color:#9A9EAD")}>{x.day.weekday} · {x.seg.time}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {ideaItems.map((o) => {
+            const saved = !!S.savedOpt[o.name];
+            return (
+              <div
+                key={o.name}
+                onClick={() => setState((st) => ({ savedOpt: { ...st.savedOpt, [o.name]: !st.savedOpt[o.name] } }))}
+                style={css("display:flex;gap:12px;background:#fff;border-radius:16px;padding:10px;margin-bottom:11px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5);cursor:pointer")}
+              >
+                <Img src={o.img} seed={o.seed} alt={o.name} style={css("width:78px;height:78px;border-radius:11px;object-fit:cover;flex:none;display:block")} />
+                <div style={css("flex:1;min-width:0;padding-top:2px")}>
+                  <div style={css("display:flex;justify-content:space-between;align-items:flex-start;gap:8px")}>
+                    <div style={css("font-size:10px;font-weight:700;letter-spacing:.8px;color:#A9974F;text-transform:uppercase")}>{o.cat}</div>
+                    {saved ? <I.Heart size={15} color="#B5484E" fill="#B5484E" /> : <I.Heart size={15} color="#C6C8D2" sw={1.9} />}
+                  </div>
+                  <div style={css("font-family:'Newsreader',serif;font-size:17px;font-weight:500;line-height:1.12;margin-top:2px")}>{o.name}</div>
+                  <div style={css("font-size:12px;line-height:1.4;color:#5B6076;margin-top:5px")}>{o.why}</div>
+                  <div style={css("display:flex;align-items:center;gap:12px;margin-top:8px")}>
+                    <span style={css("font-size:11.5px;font-weight:500;color:#9A9EAD")}>{o.neigh}</span>
+                    <a
+                      href={geo.dir(o.lat, o.lng)}
+                      target="_blank"
+                      rel="noopener"
+                      onClick={(e) => e.stopPropagation()}
+                      style={css("display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#2A2E48;text-decoration:none")}
+                    >
+                      <I.Navigation size={12} />Directions
+                    </a>
                   </div>
                 </div>
               </div>

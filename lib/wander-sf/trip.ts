@@ -94,7 +94,7 @@ function P(name: string, catLabel: string, cat: string, neigh: string, imgKey: s
 function buildDays(): Day[] {
   return [
     {
-      id: "jul31", weekday: "Thursday", dayNum: "31", month: "JUL", dateLong: "July 31", hero: IMG.friHero,
+      id: "jul31", weekday: "Friday", dayNum: "31", month: "JUL", dateLong: "July 31", hero: IMG.friHero,
       title: "Land, settle in at Union Square, and take the city from nineteen floors up as the sun goes down.",
       walk: "1.4 km", cost: "≈ $120",
       weather: { def: { cond: "cloud", label: "Fog a.m. → clear 20°" }, alt: { cond: "sun", label: "Clear 21°" } },
@@ -102,7 +102,7 @@ function buildDays(): Day[] {
       wow: { title: "Sunset from Top of the Mark", sub: "19th-floor penthouse, 360° views", blurb: "Ride the California St cable car to the door and take the whole city in as the sun drops behind the bridge — then straight down into a basement speakeasy.", key: "view" },
       segments: [
         { id: "d1-base", time: "10:30 AM", isAnchor: true, anchorLabel: "CHECK-IN", transit: { label: "BART from SFO → Powell St · ≈30 min" }, leaveBy: "—",
-          options: [ P("JW Marriott Union Square", "YOUR BASE", "Anchors", "515 Mason St · Union Square", "skyline", { hours: "Check-in from 3:00 PM", why: "Your whole trip runs from the JW Marriott on Mason St — the California St cable car boards two blocks up, Chinatown is one block over, and BART at Powell St is a short walk for the airport. Drop bags, then walk the neighbourhood.", lat: 37.7887, lng: -122.4097, web: "https://www.marriott.com/en-us/hotels/sfojw-jw-marriott-san-francisco-union-square/overview/", book: "https://www.marriott.com/en-us/hotels/sfojw-jw-marriott-san-francisco-union-square/overview/" }) ] },
+          options: [ P("JW Marriott Union Square", "YOUR BASE", "Anchors", "515 Mason St · Union Square", "skyline", { hours: "Check-in from 3:00 PM", why: "Your whole trip runs from the JW Marriott on Mason St — Union Square is a block east, the Powell cable-car turnaround and BART are a 6-minute walk, and the California St line (California & Mason, for Top of the Mark) is about four blocks up. Chinatown starts a block away. Drop bags, then walk the neighbourhood.", lat: 37.7887, lng: -122.4097, web: "https://www.marriott.com/en-us/hotels/sfojw-jw-marriott-san-francisco-union-square/overview/", book: "https://www.marriott.com/en-us/hotels/sfojw-jw-marriott-san-francisco-union-square/overview/" }) ] },
         { id: "d1-coffee", time: "11:15 AM", transit: { label: "10-min walk into Chinatown" },
           options: [ P("The Coffee Movement", "CAFÉ · PHOTO", "Cafés", "Chinatown", "cafe", { rating: { value: 4.7 }, match: "Your closest top pick", hours: "7:00 AM – 2:00 PM", price: "$", why: "Your nearest excellent cup — a 10-minute walk. Seasonal lattes (vanilla-lavender, ginger spice) in a tiny Chinatown room. Closes at 2, so it's a morning stop.", review: "Widely rated one of the best espresso bars in the city.", lat: 37.7945, lng: -122.4085, web: "https://www.thecoffeemovement.com/" }),
                      P("Home Coffee Roasters", "CAFÉ · PHOTO", "Cafés", "Chinatown", "cafe3", { match: "Even closer, opens earlier", hours: "7:00 AM – 6:00 PM", price: "$", why: "The closest decent cup to the hotel — red-velvet and lavender lattes that aren't over-sweet.", lat: 37.7915, lng: -122.4058 }) ] },
@@ -113,7 +113,7 @@ function buildDays(): Day[] {
       ],
     },
     {
-      id: "aug1", weekday: "Friday", dayNum: "01", month: "AUG", dateLong: "August 1", hero: IMG.satHero,
+      id: "aug1", weekday: "Saturday", dayNum: "01", month: "AUG", dateLong: "August 1", hero: IMG.satHero,
       title: "Jerry Garcia's birthday in the sun, then swing on Nob Hill and jazz downtown.",
       walk: "3.0 km", cost: "≈ $90",
       weather: { def: { cond: "sun", label: "Sunny SE · fog west 24°" }, alt: { cond: "cloud", label: "Cloud 20°" } },
@@ -129,7 +129,7 @@ function buildDays(): Day[] {
       ],
     },
     {
-      id: "aug2", weekday: "Saturday", dayNum: "02", month: "AUG", dateLong: "August 2", hero: IMG.sunHero,
+      id: "aug2", weekday: "Sunday", dayNum: "02", month: "AUG", dateLong: "August 2", hero: IMG.sunHero,
       title: "Your own sequence — coffee on Polk, an hour at The Interval, the waterfront on foot, then jazz.",
       walk: "5.2 km", cost: "≈ $130",
       weather: { def: { cond: "cloud", label: "Fog a.m. → clear 19°" }, alt: { cond: "sun", label: "Clear 20°" } },
@@ -143,31 +143,32 @@ function buildDays(): Day[] {
         { id: "d3-walk", time: "4:15 PM", anchorLabel: "WALK", transit: { label: "Flat waterfront path" },
           options: [ P("Embarcadero walk", "WALK", "Outdoors", "Fort Mason → Ferry Building", "view", { match: "≈4 km, ~1 hr, flat", price: "Free", why: "Fort Mason → Aquatic Park → the Wharf → Pier 39 → the Ferry Building. The best long walk in the city, and the fog has usually burned off by mid-afternoon. Bring the shell — it's the windward side.", lat: 37.8, lng: -122.41 }) ] },
         { id: "d3-din", time: "7:45 PM", transit: { label: "You're already at the water" },
-          options: [ P("XICA", "DINNER", "Dining", "Embarcadero", "dinner2", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe on the water", hours: "5:00 PM – 10:00 PM", price: "$$", why: "An entirely gluten-free Mexican kitchen right on the Embarcadero — no cross-contamination questions, minutes from where the walk ends.", lat: 37.796, lng: -122.3945, web: "https://www.google.com/search?q=XICA+restaurant+San+Francisco", uncertainty: "Restaurant hours unverified — confirm when you book." }),
+          options: [ P("XICA", "DINNER", "Dining", "1265 Battery St · near Embarcadero", "dinner2", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe on the water", hours: "5:00 PM – 10:00 PM", price: "$$", why: "An entirely gluten-free Mexican kitchen right on the Embarcadero — no cross-contamination questions, minutes from where the walk ends.", lat: 37.8016, lng: -122.4005, web: "https://www.google.com/search?q=XICA+restaurant+San+Francisco", uncertainty: "Restaurant hours unverified — confirm when you book." }),
                      P("La Mar Cocina Peruana", "DINNER", "Dining", "Embarcadero", "dinner", { diet: { level: "caution", label: "GF-friendly" }, match: "Upscale waterfront", hours: "5:00 PM – 10:00 PM", price: "$$$", why: "Ceviche-led Peruvian with sweeping bay views — much of the menu is naturally gluten-free, but confirm with the kitchen.", lat: 37.7967, lng: -122.3945, web: "https://lamarsf.com/" }) ] },
         { id: "d3-cat", time: "8:00 PM", isAnchor: true, anchorLabel: "JAZZ SUPPER CLUB", transit: { label: "Take a car — Tenderloin at night" },
           options: [ P("Black Cat — Denim Dream", "JAZZ", "Must-see", "Tenderloin", "jazz", { match: "Dinner + show, one booking", hours: "Sun 6:00 PM – 11:00 PM", price: "$$$", why: "A jazz supper club, so dinner and the show are one booking — the Denim Dream release ft. PHER. Closed Monday and Tuesday, which is why Sunday is the only night the whole day fits. Call to confirm Sat vs Sun.", lat: 37.784, lng: -122.413, book: "tel:+14153581999", web: "https://www.google.com/search?q=Black+Cat+SF+Denim+Dream", dietNote: "Ask about gluten-free options when you reserve; take a car both ways." }) ] },
       ],
     },
     {
-      id: "aug3", weekday: "Sunday", dayNum: "03", month: "AUG", dateLong: "August 3", hero: IMG.monHero,
+      id: "aug3", weekday: "Monday", dayNum: "03", month: "AUG", dateLong: "August 3", hero: IMG.monHero,
       title: "Napa and Sonoma by coach, back for the floodlit rotunda at dusk.",
       walk: "1.8 km", cost: "≈ $360",
       weather: { def: { cond: "sun", label: "Warm inland · sunny 28°" }, alt: { cond: "sun", label: "Hot 31°" } },
       contingency: null,
       wow: { title: "Palace of Fine Arts at blue hour", sub: "Floodlit rotunda in the lagoon", blurb: "The rotunda lights up after dark and reflects in the lagoon — blue hour, roughly sunset to thirty minutes after, is the real shot, not sunset itself.", key: "view" },
       segments: [
-        { id: "d4-wine", time: "8:45 AM", isAnchor: true, anchorLabel: "DAY TOUR", transit: { label: "Pickup 291 Geary — 2-min walk" }, leaveBy: "6:00 PM",
-          options: [ P("Napa & Sonoma bus tour", "TOUR", "Outdoors", "Wine Country", "garden", { match: "Tastings included", hours: "8:45 AM – ~6:00 PM", price: "$$$", why: "A full-day guided loop through Napa and Sonoma with tastings — pickup is two minutes from the hotel on Geary. Wine country is outside every rideshare's range, so the coach is the move.", lat: 37.7875, lng: -122.4085, web: "https://www.google.com/search?q=Napa+Sonoma+wine+tour+from+San+Francisco", uncertainty: "Confirm the tour runs Monday and re-confirm the pickup point." }) ] },
+        { id: "d4-wine", time: "8:45 AM", isAnchor: true, anchorLabel: "DAY TOUR", transit: { label: "Union Square pickup — confirm exact spot with operator" }, leaveBy: "6:00 PM",
+          options: [ P("Napa & Sonoma bus tour", "TOUR", "Outdoors", "Wine Country", "garden", { match: "Tastings included", hours: "8:45 AM – ~6:00 PM", price: "$$$", why: "A full-day guided loop through Napa and Sonoma with tastings — pickup is near the hotel — the main operator (Gray Line) departs 478 Post St; confirm your exact spot with the tour operator. Wine country is outside every rideshare's range, so the coach is the move.", lat: 37.7880, lng: -122.4088, web: "https://www.google.com/search?q=Napa+Sonoma+wine+tour+from+San+Francisco", uncertainty: "Confirm the tour runs Monday and re-confirm the pickup point." }) ] },
         { id: "d4-palace", time: "7:45 PM", isAnchor: true, anchorLabel: "GOLDEN HOUR", transit: { label: "Car to the Marina · ≈15 min" },
           options: [ P("Palace of Fine Arts", "VIEW", "Must-see", "Marina", "view", { match: "Blue hour is the shot", hours: "Grounds always open · free", price: "Free", why: "Golden hour is 7:41, sunset 8:18, blue hour to 8:47 — the floodlit rotunda mirrored in the lagoon is the picture. Ten minutes from a fully gluten-free dinner at Camino Alto.", lat: 37.803, lng: -122.4485, web: "https://palaceoffinearts.org/" }),
                      P("Crissy Field", "WALK", "Outdoors", "Presidio", "garden", { match: "Bridge silhouette at sunset", hours: "Always open · free", price: "Free", why: "One km from the Palace — the sun sets right beside the Golden Gate here, so the bridge silhouettes. Cold and windy: bring the shell.", lat: 37.804, lng: -122.465, web: "https://www.parksconservancy.org/parks/crissy-field" }) ] },
         { id: "d4-din", time: "9:00 PM", transit: { label: "10-min walk from the Palace" },
-          options: [ P("Camino Alto", "DINNER", "Dining", "Cow Hollow", "dinner", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.7 }, match: "Best single fit of the trip", hours: "5:00 PM – 10:00 PM", price: "$$$", why: "A fully gluten-free upscale New American room, Scandinavian-chic, a 10-minute walk from where you already are — a destination dinner with zero gluten risk.", lat: 37.7975, lng: -122.4245, web: "https://www.google.com/search?q=Camino+Alto+restaurant+San+Francisco", uncertainty: "Restaurant hours unverified — confirm when you book." }) ] },
+          options: [ P("Camino Alto", "DINNER", "Dining", "1715 Union St · Cow Hollow", "dinner", { diet: { level: "caution", label: "GF — confirm with venue" }, rating: { value: 4.6 }, match: "10-min walk from the Palace", hours: "Dinner from 5:30 · closed Tue", price: "$$$", why: "A well-reviewed seasonal New American room a 10-minute walk from the Palace. GF guides list it as dedicated gluten-free, but the restaurant itself does not confirm that — call (415) 441-2111 to verify celiac-safe before relying on it.", lat: 37.7975, lng: -122.4245, web: "https://www.caminoaltosf.com/", uncertainty: "The 100%-GF status is community-reported, not venue-confirmed — ask about celiac cross-contact." }),
+                     P("As Quoted", "DINNER", "Dining", "3613 Sacramento St · Presidio Heights", "bread", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.7 }, match: "Dedicated GF — the safe backup", hours: "Cafe — verify dinner service", price: "$$", why: "A fully gluten-free, scratch-made cafe in Presidio Heights — the confirmed celiac-safe alternative if Camino Alto cannot guarantee it. A short car from the Palace.", lat: 37.7885, lng: -122.4545, web: "https://www.eatasquoted.com/", uncertainty: "Primarily a breakfast/lunch cafe — confirm it serves dinner that night." }) ] },
       ],
     },
     {
-      id: "aug4", weekday: "Monday", dayNum: "04", month: "AUG", dateLong: "August 4", hero: IMG.tueHero,
+      id: "aug4", weekday: "Tuesday", dayNum: "04", month: "AUG", dateLong: "August 4", hero: IMG.tueHero,
       title: "Free-museum Tuesday at the de Young and Legion, then the cold night ferry across to Alcatraz.",
       walk: "2.4 km", cost: "≈ $150",
       weather: { def: { cond: "cloud", label: "Fog · cool bay 18°" }, alt: { cond: "cloud", label: "Grey 17°" } },
@@ -180,7 +181,7 @@ function buildDays(): Day[] {
         { id: "d5-alcatraz", time: "5:50 PM", isAnchor: true, anchorLabel: "MUST-DO", transit: { label: "Flat walk or car to Pier 33" }, leaveBy: "8:40 PM",
           options: [ P("Alcatraz Night Tour", "FERRY", "Must-see", "Pier 33", "tueHero", { rating: { value: 4.9 }, match: "Your must-do · 6:30 sailing", hours: "Board 5:50 · back 8:40", price: "$59.65", why: "Be at Pier 33 by 5:50 for the 6:30 sailing — you get sunset from the island and the quietest cell house of the day. It sells out; book well ahead.", lat: 37.808, lng: -122.41, book: "https://www.cityexperiences.com/san-francisco/city-cruises/alcatraz/", web: "https://www.cityexperiences.com/san-francisco/city-cruises/alcatraz/", dietNote: "Coldest thing all trip: windproof jacket, long trousers, closed shoes, and a hat." }) ] },
         { id: "d5-din", time: "9:00 PM", transit: { label: "Minutes from Pier 33" },
-          options: [ P("XICA", "DINNER", "Dining", "Embarcadero", "dinner2", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe, late, close", hours: "5:00 PM – 10:00 PM", price: "$$", why: "Off the cold ferry and straight into a warm, entirely gluten-free room minutes from the pier. The natural last-night dinner.", lat: 37.796, lng: -122.3945, web: "https://www.google.com/search?q=XICA+restaurant+San+Francisco", uncertainty: "Confirm hours — you're arriving close to 9pm." }) ] },
+          options: [ P("XICA", "DINNER", "Dining", "1265 Battery St · near Embarcadero", "dinner2", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe, late, close", hours: "5:00 PM – 10:00 PM", price: "$$", why: "Off the cold ferry and straight into a warm, entirely gluten-free room minutes from the pier. The natural last-night dinner.", lat: 37.8016, lng: -122.4005, web: "https://www.google.com/search?q=XICA+restaurant+San+Francisco", uncertainty: "Confirm hours — you're arriving close to 9pm." }) ] },
       ],
     },
   ];
@@ -199,6 +200,9 @@ const optionalIdeas: OptionalIdea[] = [
   { name: "Presidio Tunnel Tops", cat: "Outdoors", neigh: "Presidio", why: "Free; food trucks and big bridge views — the best view-to-effort ratio in the city.", weather: "clear", img: uimg(IMG.garden), seed: "garden3", lat: 37.8015, lng: -122.4665 },
   { name: "California Academy of Sciences", cat: "Art & Culture", neigh: "Golden Gate Park", why: "Open every day including Monday — rainforest dome, planetarium, aquarium under one living roof.", weather: "rain", img: uimg(IMG.gallery), seed: "gallery3", lat: 37.7699, lng: -122.4661 },
   { name: "Mariposa Baking Co", cat: "Cafés", neigh: "Ferry Building", why: "A 100% dedicated gluten-free bakery — zero cross-contamination. Bread, pastries, cakes.", weather: "any", img: uimg(IMG.bread), seed: "bread", lat: 37.7955, lng: -122.3937 },
+  { name: "Chinatown — Grant & Waverly", cat: "Must-see", neigh: "one block from the hotel", why: "The oldest Chinatown in North America starts a block from your door — Grant Ave dragon gate, Waverly Place, Ross Alley. The perfect arrival-day wander. (Celiac note: browse, do not rely on the food — Chinese soy sauce is wheat-based.)", weather: "any", img: uimg(IMG.market), seed: "market4", lat: 37.7941, lng: -122.4078 },
+  { name: "Golden Gate Bridge walk", cat: "Must-see", neigh: "Presidio / the bridge", why: "The one iconic SF thing the plan was missing — walk out onto the span from the south Welcome Center, or stroll from Crissy Field. Pair it with the Monday Palace/Crissy evening or a free morning. Windproof layer essential.", weather: "clear", img: uimg(IMG.ggb), seed: "ggb", lat: 37.8078, lng: -122.4753 },
+  { name: "Little Gem", cat: "Dining", neigh: "Hayes Valley", why: "Entirely gluten-, dairy- and refined-sugar-free and casual — a genuinely celiac-safe sit-down lunch or dinner near Civic Center and SFJAZZ.", weather: "any", img: uimg(IMG.dinner2), seed: "dinner5", lat: 37.7776, lng: -122.4231 },
 ];
 
 const MODEL: TripModel = {

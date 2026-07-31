@@ -879,8 +879,8 @@ export default function Wander() {
     }
     const srcLabel = p.source || (p.web ? geo.domain(p.web) : "");
     const gIdx = rec.day.segments.indexOf(seg);
-    const gFrom = gIdx > 0 ? cur(rec.day.segments[gIdx - 1]) : { lat: geo.HOME.lat, lng: geo.HOME.lng, name: "your Union Square hotel" };
-    const gFromName = gIdx > 0 ? cur(rec.day.segments[gIdx - 1]).name : "your Union Square hotel";
+    const gFrom = gIdx > 0 ? cur(rec.day.segments[gIdx - 1]) : { lat: geo.HOME.lat, lng: geo.HOME.lng, name: "the JW Marriott" };
+    const gFromName = gIdx > 0 ? cur(rec.day.segments[gIdx - 1]).name : "the JW Marriott";
     const gKm = p.lat != null && gFrom.lat != null ? geo.roadKm(gFrom.lat, gFrom.lng, p.lat, p.lng) : 0;
     const gAir = (p.lat != null && Math.abs(p.lat - 45.4706) < 0.02) || (gFrom.lat != null && Math.abs(gFrom.lat - 45.4706) < 0.02);
     const gh = {

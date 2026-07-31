@@ -1,6 +1,6 @@
 // Derived-in-UI geo + link helpers, ported verbatim from the prototype logic.
 
-export const HOME = { lat: 37.788, lng: -122.4074 };
+export const HOME = { lat: 37.7887, lng: -122.4097 };
 
 export function uimg(id: string): string {
   if (id.startsWith("http")) return id;
@@ -30,7 +30,7 @@ export function km(lat: number | null, lng: number | null): string {
 
 export function dir(lat: number | null, lng: number | null): string {
   return (
-    "https://www.google.com/maps/dir/?api=1&origin=37.788,-122.4074&destination=" +
+    "https://www.google.com/maps/dir/?api=1&origin=37.7887,-122.4097&destination=" +
     lat +
     "," +
     lng +

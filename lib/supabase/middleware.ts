@@ -36,6 +36,8 @@ export async function updateSession(request: NextRequest) {
     path.startsWith('/auth') ||
     path === '/trip' ||
     path.startsWith('/trip/') ||
+    path === '/sf-trip' ||
+    path.startsWith('/sf-trip/') ||
     path === '/manifest.webmanifest' ||
     path === '/sw.js';
 

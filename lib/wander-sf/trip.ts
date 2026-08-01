@@ -98,6 +98,9 @@ const IMG: Record<string, string> = {
   landsEnd: FP("Sutro_Baths_in_San_Francisco.jpg"),
   sausalito: FP("Sausalito_California.jpg"),
   mission: FP("Mission_Mural_-_Political_Art,_SF.jpg"),
+  // Actual-venue photos that exist under a free licence.
+  zuni: FP("Zuni_Cafe_in_San_Francisco.jpg"),
+  ferryInterior: FP("SF_Ferry_Building_interior_1.JPG"),
 };
 
 export function wowImgId(key: string): string {
@@ -226,17 +229,17 @@ function buildDays(): Day[] {
 
 const optionalIdeas: OptionalIdea[] = [
   { name: "Sightglass Coffee", cat: "Cafés", neigh: "SoMa", why: "Roastery + café in one big room; opens 6:30 — the only good coffee before an early start.", weather: "any", img: uimg(IMG.sfmoma), seed: "cafe", lat: 37.7767, lng: -122.4088 },
-  { name: "Ferry Building Marketplace", cat: "Markets", neigh: "Embarcadero", why: "Mariposa (100% GF bakery) inside; big Saturday farmers market 8–2. Flat walk from the hotel.", weather: "any", img: uimg(IMG.sunHero), seed: "market", lat: 37.7955, lng: -122.3937 },
+  { name: "Ferry Building Marketplace", cat: "Markets", neigh: "Embarcadero", why: "Mariposa (100% GF bakery) inside; big Saturday farmers market 8–2. Flat walk from the hotel.", weather: "any", img: uimg(IMG.ferryInterior), seed: "market", lat: 37.7955, lng: -122.3937 },
   { name: "SFMOMA", cat: "Art & Culture", neigh: "SoMa", why: "One of few majors open Mondays; a 10-minute walk — the easiest museum to slot in.", weather: "rain", img: uimg(IMG.sfmoma), seed: "gallery", lat: 37.7857, lng: -122.401 },
   { name: "Exploratorium", cat: "Art & Culture", neigh: "Pier 15", why: "50+ interactive exhibits built with NASA; near Pier 33 for a pre-ferry afternoon.", weather: "rain", img: uimg(IMG.exploratorium), seed: "gallery2", lat: 37.8017, lng: -122.3975 },
   { name: "Smuggler's Cove", cat: "Trending", neigh: "Hayes Valley", why: "Over 1,000 rums and a world-class tiki programme; five minutes from SFJAZZ.", weather: "any", img: uimg(IMG.nightSkyline), seed: "bar", lat: 37.779, lng: -122.423 },
   { name: "Cityscape Lounge", cat: "Must-see", neigh: "Union Square", why: "46th-floor rooftop — the one nearby panorama that genuinely includes the Golden Gate. Walkable.", weather: "clear", img: uimg(IMG.nightSkyline), seed: "view2", lat: 37.7857, lng: -122.4103 },
-  { name: "Zuni Café", cat: "Dining", neigh: "Hayes Valley", why: "The iconic SF room; roast chicken for two takes an hour by design. Naturally GF-leaning.", weather: "any", img: uimg(IMG.satHero), seed: "dinner3", lat: 37.7727, lng: -122.4218 },
+  { name: "Zuni Café", cat: "Dining", neigh: "Hayes Valley", why: "The iconic SF room; roast chicken for two takes an hour by design. Naturally GF-leaning.", weather: "any", img: uimg(IMG.zuni), seed: "dinner3", lat: 37.7727, lng: -122.4218 },
   { name: "Gary Danko", cat: "Dining", neigh: "Fisherman's Wharf", why: "The classic special-occasion prix fixe with choices — substitutions are easy and it's very accommodating.", weather: "any", img: uimg(IMG.pier39), seed: "dinner4", lat: 37.8058, lng: -122.4205 },
   { name: "Cable car — Powell/Hyde", cat: "Must-see", neigh: "Russian Hill", why: "$9 flat, runs to 11pm — the scenic line over Russian Hill past the crooked street. Board mid-route at Washington & Powell to skip the queue.", weather: "clear", img: uimg(IMG.cable), seed: "cable", lat: 37.7847, lng: -122.408 },
   { name: "Presidio Tunnel Tops", cat: "Outdoors", neigh: "Presidio", why: "Free; food trucks and big bridge views — the best view-to-effort ratio in the city.", weather: "clear", img: uimg(IMG.ggb), seed: "garden3", lat: 37.8015, lng: -122.4665 },
   { name: "California Academy of Sciences", cat: "Art & Culture", neigh: "Golden Gate Park", why: "Open every day including Monday — rainforest dome, planetarium, aquarium under one living roof.", weather: "rain", img: uimg(IMG.calAcademy), seed: "gallery3", lat: 37.7699, lng: -122.4661 },
-  { name: "Mariposa Baking Co", cat: "Cafés", neigh: "Ferry Building", why: "A 100% dedicated gluten-free bakery — zero cross-contamination. Bread, pastries, cakes.", weather: "any", img: uimg(IMG.sunHero), seed: "bread", lat: 37.7955, lng: -122.3937 },
+  { name: "Mariposa Baking Co", cat: "Cafés", neigh: "Ferry Building", why: "A 100% dedicated gluten-free bakery — zero cross-contamination. Bread, pastries, cakes.", weather: "any", img: uimg(IMG.ferryInterior), seed: "bread", lat: 37.7955, lng: -122.3937 },
   { name: "Chinatown — Grant & Waverly", cat: "Must-see", neigh: "one block from the hotel", why: "The oldest Chinatown in North America starts a block from your door — Grant Ave dragon gate, Waverly Place, Ross Alley. The perfect arrival-day wander. (Celiac note: browse, do not rely on the food — Chinese soy sauce is wheat-based.)", weather: "any", img: uimg(IMG.chinatown), seed: "market4", lat: 37.7941, lng: -122.4078 },
   { name: "Golden Gate Bridge walk", cat: "Must-see", neigh: "Presidio / the bridge", why: "The one iconic SF thing the plan was missing — walk out onto the span from the south Welcome Center, or stroll from Crissy Field. Pair it with the Monday Palace/Crissy evening or a free morning. Windproof layer essential.", weather: "clear", img: uimg(IMG.ggb), seed: "ggb", lat: 37.8078, lng: -122.4753 },
   { name: "Little Gem", cat: "Dining", neigh: "Hayes Valley", why: "Entirely gluten- and dairy-free and casual (400 Grove St) — a genuinely celiac-safe sit-down lunch or dinner near Civic Center and SFJAZZ.", weather: "any", img: uimg(IMG.satHero), seed: "dinner5", lat: 37.7776, lng: -122.4231 },

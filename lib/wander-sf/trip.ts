@@ -49,9 +49,10 @@ export const SENS: Record<string, string> = {
   BREAKFAST: "Quiet mornings", LUNCH: "Casual", "GF TREAT": "Quick stop", VIEW: "Rooftop · views",
   NEIGHBOURHOOD: "Low-key · local", BAR: "Dim · late", FERRY: "Cold · windy · dress warm",
   "CABLE CAR": "Iconic · queues", FLIGHT: "Transit", "YOUR BASE": "Calm base", TOUR: "Full-day · guided",
+  "RECORD STORE": "Browse · lively", LANDMARK: "Photo stop · outdoors", "GF BAR": "Dim · celiac-safe",
 };
 export const OUT: Record<string, number> = {
-  WALK: 1, MARKET: 1, FESTIVAL: 1, GARDEN: 1, VIEW: 1, FERRY: 1, "CABLE CAR": 1, NEIGHBOURHOOD: 1, TOUR: 1,
+  WALK: 1, MARKET: 1, FESTIVAL: 1, GARDEN: 1, VIEW: 1, FERRY: 1, "CABLE CAR": 1, NEIGHBOURHOOD: 1, TOUR: 1, LANDMARK: 1,
 };
 export const BK: Record<string, string> = {
   "d3-din": "XICA — 100% gluten-free, on the Embarcadero",
@@ -110,6 +111,10 @@ const IMG: Record<string, string> = {
   // Actual-venue photos that exist under a free licence.
   zuni: FP("Zuni_Cafe_in_San_Francisco.jpg"),
   ferryInterior: FP("SF_Ferry_Building_interior_1.JPG"),
+  // Haight-Ashbury (Saturday visit) — verified Commons street photos.
+  haight: FP("Haight-Ashbury_street,_San_Francisco.jpg"),
+  haight2: FP("Haight-Ashbury,_San_Francisco_(TK1).JPG"),
+  stoaBar: site("https://www.stoabar.com/"),
   // Private venues — each pulls its own website photo (og:image) at view time.
   jwMarriott: site("https://www.marriott.com/en-us/hotels/sfojw-jw-marriott-san-francisco-union-square/overview/"),
   coffeeMovement: site("https://www.thecoffeemovement.com/"),
@@ -183,14 +188,18 @@ function buildDays(): Day[] {
     },
     {
       id: "aug1", weekday: "Saturday", dayNum: "01", month: "AUG", dateLong: "August 1", hero: IMG.satHero,
-      title: "Jerry Garcia's birthday in the sun, then swing on Nob Hill and jazz downtown.",
-      walk: "3.0 km", cost: "≈ $90",
+      title: "Jerry Garcia's birthday in the sun, the Dead's old Haight-Ashbury home, then swing on Nob Hill and jazz downtown.",
+      walk: "4.2 km", cost: "≈ $120",
       weather: { def: { cond: "sun", label: "Sunny SE · fog west 24°" }, alt: { cond: "cloud", label: "Cloud 20°" } },
       contingency: null,
       wow: { title: "Azure McCall at the Dawn Club", sub: "One night only", blurb: "Named for the 1930s club where Lu Watters' band played — 'Hawaii's first lady of jazz' for a single night, minutes from Union Square.", key: "jazz" },
       segments: [
         { id: "d2-jerry", time: "11:30 AM", isAnchor: true, anchorLabel: "FESTIVAL", transit: { label: "Car to McLaren Park · ≈20 min" }, leaveBy: "3:00 PM",
           options: [ P("Jerry Day, McLaren Park", "FESTIVAL", "Markets", "Excelsior", "teaGarden", { match: "Free · the city's sunny pocket", hours: "11:30 AM – 5:45 PM", price: "Free", why: "The 24th annual Garcia birthday tribute with Melvin Seals & JGB, in the Excelsior — the neighbourhood that actually gets sun while the rest of the city fogs in. Sunscreen, not a parka.", lat: 37.718, lng: -122.42, web: "https://www.google.com/search?q=Jerry+Day+McLaren+Park" }) ] },
+        { id: "d2-haight", time: "3:30 PM", isAnchor: true, anchorLabel: "THE HAIGHT", transit: { label: "Car from McLaren Park · ≈15 min" }, leaveBy: "5:30 PM", optionMeta: { need: "Amoeba opens 11–8; Stoa opens 4pm", notes: "On Jerry's birthday, the Dead's old neighbourhood is the natural encore to Jerry Day." },
+          options: [ P("Grateful Dead House — 710 Ashbury", "LANDMARK", "Must-see", "Haight-Ashbury", "haight", { match: "The Dead's home, on Jerry's birthday", hours: "Sidewalk view · anytime", price: "Free", why: "The purple Victorian at 710 Ashbury where the Grateful Dead lived communally 1966–68. It's a private home, so it's a sidewalk photo — but there's nowhere more fitting to stand on Jerry Garcia's birthday. The Haight & Ashbury street sign and the vintage row (Love on Haight, Held Over) are a block away.", lat: 37.7699, lng: -122.447, web: "https://en.wikipedia.org/wiki/Grateful_Dead_House", source: "Lonely Planet / SF Travel", verifiedOn: "Aug 1, 2026" }),
+                     P("Amoeba Music", "RECORD STORE", "Must-see", "1855 Haight St · Upper Haight", "haight2", { rating: { value: 4.8 }, match: "One of the world's biggest record stores", hours: "11:00 AM – 8:00 PM", price: "Free to browse", why: "A cathedral of vinyl, CDs and memorabilia in the heart of the Upper Haight — easily an hour, and free in-store shows land on weekends. The natural Jerry Day encore, ten minutes' walk from the Dead house.", lat: 37.7695, lng: -122.4536, web: "https://www.amoeba.com/", source: "amoeba.com", verifiedOn: "Aug 1, 2026" }),
+                     P("Stoa", "GF BAR", "Dining", "701 Haight St · Lower Haight", "stoaBar", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.7 }, match: "Dedicated GF + dairy-free · opens 4pm", hours: "Daily from 4:00 PM · closed Sun", price: "$$", why: "A cocktail bar with a 100%-gluten-free-and-dairy-free kitchen — tacos, wings, waffles, all celiac-safe — a short hop east in the Lower Haight. Opens at 4, no reservations. Your safe bite before the Nob Hill jazz.", lat: 37.7719, lng: -122.4339, web: "https://www.stoabar.com/", source: "Find Me Gluten Free", verifiedOn: "Aug 1, 2026", dietNote: "Dedicated gluten-free AND dairy-free kitchen — no cross-contact questions." }) ] },
         { id: "d2-swing", time: "6:00 PM", isAnchor: true, anchorLabel: "LIVE MUSIC", transit: { label: "California St cable car to Nob Hill" }, leaveBy: "7:30 PM",
           options: [ P("Top of the Mark — Swing Four", "JAZZ", "Trending", "Nob Hill", "topMark", { match: "$15 cover · early set", hours: "6:00 PM – 7:30 PM", price: "$$", why: "Nick Rossi & the Swing Four play the penthouse early enough that you can still make the Dawn Club downtown after. $15 cover.", lat: 37.7924, lng: -122.4103, web: "https://www.topofthemark.com/", uncertainty: "Top of the Mark doesn't publish its live-music lineup far ahead — confirm the Saturday act and cover before counting on it: (415) 616-6916." }) ] },
         { id: "d2-dawn", time: "8:00 PM", isAnchor: true, anchorLabel: "JAZZ", transit: { label: "9-min walk off Market" },

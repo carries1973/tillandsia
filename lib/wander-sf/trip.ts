@@ -123,18 +123,20 @@ const IMG: Record<string, string> = {
   caminoAlto: site("https://www.caminoaltosf.com/"),
   kitava: site("https://www.kitava.com/"),
   sightglass: site("https://sightglasscoffee.com/"),
+  interval: site("https://theinterval.org/"),
   smugglers: site("https://smugglerscovesf.com/"),
   garyDanko: site("https://www.garydanko.com/"),
   littleGem: site("https://littlegem.restaurant/"),
 };
 
+// Signature-moment ("wow") images — the actual venue for each moment.
 export function wowImgId(key: string): string {
   return key === "mark"
-    ? IMG.markHopkins
+    ? IMG.topMark
     : key === "jazz"
-      ? IMG.nightSkyline
+      ? IMG.dawnClub
       : key === "interval"
-        ? IMG.fortMason
+        ? IMG.interval
         : key === "palace"
           ? IMG.palace
           : key === "ferry"

@@ -89,13 +89,13 @@ const IMG: Record<string, string> = {
   // Real San Francisco places — the exact venue, or its actual neighbourhood.
   unionSquare: FP("Union_Square,_San_Francisco_December_2016.jpg"),
   chinatown: FP("San_Francisco_Dragon_Gate_to_Chinatown.jpg"),
-  markHopkins: FP("InterContinental_Mark_Hopkins_San_Francisco.jpg"),
+  markHopkins: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
   nightSkyline: FP("San_Francisco_by_night_skyline.jpg"),
   palace: FP("Palace_of_Fine_Arts_in_San_Francisco,_night.jpg"),
   fortMason: FP("Fort_Mason_Center_and_Downtown_San_Francisco.jpg"),
   lombard: FP("Crooked_Section_of_Lombard_Street.jpg"),
   coit: FP("Coit_Tower_at_the_Top_of_Telegraph_Hill_in_San_Francisco.jpg"),
-  pier39: FP("Pier_39_(15793096636).jpg"),
+  pier39: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
   deYoung: FP("DeYoung_Museum.JPG"),
   legion: FP("California_Palace_of_the_Legion_of_Honor,_01.JPG"),
   sfmoma: FP("2017_SFMOMA_from_Yerba_Buena_Gardens.jpg"),
@@ -106,7 +106,7 @@ const IMG: Record<string, string> = {
   crissy: FP("Crissy_Field_with_Golden_Gate_Bridge_and_Marin_Headlands.jpg"),
   landsEnd: FP("Sutro_Baths_in_San_Francisco.jpg"),
   sausalito: FP("Sausalito_California.jpg"),
-  mission: FP("Mission_Mural_-_Political_Art,_SF.jpg"),
+  mission: FP("Mission_district_2016.jpg"),
   // Actual-venue photos that exist under a free licence.
   zuni: FP("Zuni_Cafe_in_San_Francisco.jpg"),
   ferryInterior: FP("SF_Ferry_Building_interior_1.JPG"),
@@ -129,18 +129,20 @@ const IMG: Record<string, string> = {
   littleGem: site("https://littlegem.restaurant/"),
 };
 
-// Signature-moment ("wow") images — the actual venue for each moment.
+// Signature-moment ("wow") images — verified, reliably-rendering photos so
+// this prominent row is never blank (the private-venue site photos can be
+// rate-limited by the link-preview proxy, so we don't use them here).
 export function wowImgId(key: string): string {
   return key === "mark"
-    ? IMG.topMark
+    ? IMG.markHopkins // the actual Top of the Mark / Mark Hopkins building
     : key === "jazz"
-      ? IMG.dawnClub
+      ? IMG.nightSkyline // night-out feel for the Dawn Club jazz set
       : key === "interval"
-        ? IMG.interval
+        ? IMG.fortMason // the building that houses The Interval
         : key === "palace"
           ? IMG.palace
           : key === "ferry"
-            ? IMG.tueHero
+            ? IMG.tueHero // Alcatraz
             : IMG.ggb;
 }
 

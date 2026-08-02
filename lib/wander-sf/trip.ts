@@ -85,10 +85,10 @@ const IMG: Record<string, string> = {
   markHopkins: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
   nightSkyline: FP("San_Francisco_by_night_skyline.jpg"),
   palace: FP("Palace_of_Fine_Arts_in_San_Francisco,_night.jpg"),
-  fortMason: FP("Fort_Mason_Center_and_Downtown_San_Francisco.jpg"),
+  fortMason: "/photos/fort-mason.jpg", // Carrie's Fort Mason + Golden Gate shot
   lombard: FP("Crooked_Section_of_Lombard_Street.jpg"),
-  coit: FP("Coit_Tower_at_the_Top_of_Telegraph_Hill_in_San_Francisco.jpg"),
-  pier39: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
+  coit: "/photos/coit-tower.jpg", // Carrie's Coit Tower photo
+  pier39: "/photos/fishermans-wharf.jpg", // Carrie's Fisherman's Wharf sign photo
   deYoung: FP("DeYoung_Museum.JPG"),
   legion: FP("California_Palace_of_the_Legion_of_Honor,_01.JPG"),
   sfmoma: FP("2017_SFMOMA_from_Yerba_Buena_Gardens.jpg"),

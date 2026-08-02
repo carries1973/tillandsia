@@ -76,12 +76,12 @@ const IMG: Record<string, string> = {
   satHero: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Painted_Ladies_San_Francisco_January_2013_panorama_2.jpg/1920px-Painted_Ladies_San_Francisco_January_2013_panorama_2.jpg",
   sunHero: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/San_Francisco_Ferry_Building_%28cropped%29.jpg/1920px-San_Francisco_Ferry_Building_%28cropped%29.jpg",
   monHero: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Vineyards_of_Napa_Valley_panorama.jpg/1920px-Vineyards_of_Napa_Valley_panorama.jpg",
-  tueHero: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Alcatraz_-_San_Francisco_%2814242577761%29.jpg/1920px-Alcatraz_-_San_Francisco_%2814242577761%29.jpg",
+  tueHero: "/photos/alcatraz.jpg", // Carrie's own shot of Alcatraz from the bay
   cable: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/San_Francisco_cable_car_no._24_en_2016.JPG/1920px-San_Francisco_cable_car_no._24_en_2016.JPG",
   ggb: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach%2C_March_2018.jpg/1920px-Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach%2C_March_2018.jpg",
   // Real San Francisco places — the exact venue, or its actual neighbourhood.
-  unionSquare: FP("Union_Square,_San_Francisco_December_2016.jpg"),
-  chinatown: FP("San_Francisco_Dragon_Gate_to_Chinatown.jpg"),
+  unionSquare: "/photos/union-square.jpg", // Carrie's Union Square photo
+  chinatown: "/photos/chinatown.jpg", // Carrie's Grant Ave / Chinatown photo
   markHopkins: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
   nightSkyline: FP("San_Francisco_by_night_skyline.jpg"),
   palace: FP("Palace_of_Fine_Arts_in_San_Francisco,_night.jpg"),
@@ -115,7 +115,7 @@ const IMG: Record<string, string> = {
   coffeeMovement: FP("San_Francisco_Dragon_Gate_to_Chinatown.jpg"),
   topMark: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
   bourbon: FP("San_Francisco_by_night_skyline.jpg"),
-  dawnClub: FP("San_Francisco_by_night_skyline.jpg"),
+  dawnClub: "/photos/dawn-club.jpg", // Carrie's photo of Azure McCall at the Dawn Club
   saintFrank: FP("Crooked_Section_of_Lombard_Street.jpg"),
   xica: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
   laMar: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
@@ -136,7 +136,7 @@ export function wowImgId(key: string): string {
   return key === "mark"
     ? IMG.markHopkins // the actual Top of the Mark / Mark Hopkins building
     : key === "jazz"
-      ? IMG.nightSkyline // night-out feel for the Dawn Club jazz set
+      ? IMG.dawnClub // Carrie's own photo of Azure McCall at the Dawn Club
       : key === "interval"
         ? IMG.fortMason // the building that houses The Interval
         : key === "palace"

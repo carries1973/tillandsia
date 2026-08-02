@@ -49,9 +49,11 @@ export const SENS: Record<string, string> = {
   BREAKFAST: "Quiet mornings", LUNCH: "Casual", "GF TREAT": "Quick stop", VIEW: "Rooftop · views",
   NEIGHBOURHOOD: "Low-key · local", BAR: "Dim · late", FERRY: "Cold · windy · dress warm",
   "CABLE CAR": "Iconic · queues", FLIGHT: "Transit", "YOUR BASE": "Calm base", TOUR: "Full-day · guided",
+  "RECORD STORE": "Browse · lively", LANDMARK: "Photo stop · outdoors", "GF BAR": "Dim · celiac-safe",
+  "IRISH COFFEE": "Historic · lively · queues",
 };
 export const OUT: Record<string, number> = {
-  WALK: 1, MARKET: 1, FESTIVAL: 1, GARDEN: 1, VIEW: 1, FERRY: 1, "CABLE CAR": 1, NEIGHBOURHOOD: 1, TOUR: 1,
+  WALK: 1, MARKET: 1, FESTIVAL: 1, GARDEN: 1, VIEW: 1, FERRY: 1, "CABLE CAR": 1, NEIGHBOURHOOD: 1, TOUR: 1, LANDMARK: 1,
 };
 export const BK: Record<string, string> = {
   "d3-din": "XICA — 100% gluten-free, on the Embarcadero",
@@ -67,15 +69,6 @@ export const BK: Record<string, string> = {
 // wine tour, Napa). Served via Special:FilePath so we don't hard-code hashes.
 const FP = (file: string): string =>
   "https://commons.wikimedia.org/wiki/Special:FilePath/" + file + "?width=1000";
-
-// The private restaurants, cafés and bars have no free-licensed photo, so we
-// pull each venue's OWN website image (its og:image) at view time via a
-// link-preview proxy — the browser resolves the real venue photo. If the proxy
-// is rate-limited or a site has no og:image, Img falls back to a real SF
-// skyline, so a card is never broken. To drop the third-party dependency for
-// any venue, replace site(...) with a direct (or owner-hosted) image URL.
-const site = (url: string): string =>
-  "https://api.microlink.io/?url=" + encodeURIComponent(url) + "&embed=image.url";
 
 const IMG: Record<string, string> = {
   // Day heroes — real SF & Napa landmarks (unchanged, already licensed Commons).
@@ -110,23 +103,30 @@ const IMG: Record<string, string> = {
   // Actual-venue photos that exist under a free licence.
   zuni: FP("Zuni_Cafe_in_San_Francisco.jpg"),
   ferryInterior: FP("SF_Ferry_Building_interior_1.JPG"),
-  // Private venues — each pulls its own website photo (og:image) at view time.
-  jwMarriott: site("https://www.marriott.com/en-us/hotels/sfojw-jw-marriott-san-francisco-union-square/overview/"),
-  coffeeMovement: site("https://www.thecoffeemovement.com/"),
-  topMark: site("https://www.topofthemark.com/"),
-  bourbon: site("https://www.bourbonandbranch.com/"),
-  dawnClub: site("https://www.dawnclub.com/"),
-  saintFrank: site("https://www.saintfrankcoffee.com/"),
-  xica: site("https://xicasf.com/"),
-  laMar: site("https://lamarsf.com/"),
-  blackCat: site("https://blackcatsf.com/"),
-  caminoAlto: site("https://www.caminoaltosf.com/"),
-  kitava: site("https://www.kitava.com/"),
-  sightglass: site("https://sightglasscoffee.com/"),
-  interval: site("https://theinterval.org/"),
-  smugglers: site("https://smugglerscovesf.com/"),
-  garyDanko: site("https://www.garydanko.com/"),
-  littleGem: site("https://littlegem.restaurant/"),
+  // Haight-Ashbury (Saturday visit) — verified Commons street photos.
+  haight: FP("Haight-Ashbury_street,_San_Francisco.jpg"),
+  haight2: FP("Haight-Ashbury,_San_Francisco_(TK1).JPG"),
+  stoaBar: FP("Haight-Ashbury_street,_San_Francisco.jpg"),
+  buenaVista: FP("Buena_Vista_Cafe,_exterior,_San_Francisco_(May_2025)_03.jpg"),
+  // Private venues — no free-licensed venue photo exists, so each uses a
+  // verified real-SF photo of the venue's own neighbourhood. These always
+  // render (no external proxy), which is what matters on the trip.
+  jwMarriott: FP("Union_Square,_San_Francisco_December_2016.jpg"),
+  coffeeMovement: FP("San_Francisco_Dragon_Gate_to_Chinatown.jpg"),
+  topMark: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
+  bourbon: FP("San_Francisco_by_night_skyline.jpg"),
+  dawnClub: FP("San_Francisco_by_night_skyline.jpg"),
+  saintFrank: FP("Crooked_Section_of_Lombard_Street.jpg"),
+  xica: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
+  laMar: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
+  blackCat: FP("San_Francisco_by_night_skyline.jpg"),
+  caminoAlto: FP("Crissy_Field_with_Golden_Gate_Bridge_and_Marin_Headlands.jpg"),
+  kitava: FP("Mission_district_2016.jpg"),
+  sightglass: FP("2017_SFMOMA_from_Yerba_Buena_Gardens.jpg"),
+  interval: FP("Fort_Mason_Center_and_Downtown_San_Francisco.jpg"),
+  smugglers: FP("San_Francisco_by_night_skyline.jpg"),
+  garyDanko: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
+  littleGem: FP("Painted_Ladies_San_Francisco_January_2013_panorama_2.jpg"),
 };
 
 // Signature-moment ("wow") images — verified, reliably-rendering photos so
@@ -183,14 +183,16 @@ function buildDays(): Day[] {
     },
     {
       id: "aug1", weekday: "Saturday", dayNum: "01", month: "AUG", dateLong: "August 1", hero: IMG.satHero,
-      title: "Jerry Garcia's birthday in the sun, then swing on Nob Hill and jazz downtown.",
-      walk: "3.0 km", cost: "≈ $90",
+      title: "The Dead's old Haight-Ashbury haunts on Jerry Garcia's birthday, then swing on Nob Hill and jazz downtown.",
+      walk: "3.5 km", cost: "≈ $110",
       weather: { def: { cond: "sun", label: "Sunny SE · fog west 24°" }, alt: { cond: "cloud", label: "Cloud 20°" } },
       contingency: null,
       wow: { title: "Azure McCall at the Dawn Club", sub: "One night only", blurb: "Named for the 1930s club where Lu Watters' band played — 'Hawaii's first lady of jazz' for a single night, minutes from Union Square.", key: "jazz" },
       segments: [
-        { id: "d2-jerry", time: "11:30 AM", isAnchor: true, anchorLabel: "FESTIVAL", transit: { label: "Car to McLaren Park · ≈20 min" }, leaveBy: "3:00 PM",
-          options: [ P("Jerry Day, McLaren Park", "FESTIVAL", "Markets", "Excelsior", "teaGarden", { match: "Free · the city's sunny pocket", hours: "11:30 AM – 5:45 PM", price: "Free", why: "The 24th annual Garcia birthday tribute with Melvin Seals & JGB, in the Excelsior — the neighbourhood that actually gets sun while the rest of the city fogs in. Sunscreen, not a parka.", lat: 37.718, lng: -122.42, web: "https://www.google.com/search?q=Jerry+Day+McLaren+Park" }) ] },
+        { id: "d2-haight", time: "1:00 PM", isAnchor: true, anchorLabel: "THE HAIGHT", transit: { label: "The 7-Haight bus or a 15-min car from Union Square" }, leaveBy: "5:30 PM", optionMeta: { need: "Amoeba opens 11–8; Stoa opens 4pm", notes: "Still Jerry Garcia's birthday — his old neighbourhood is the fitting way to mark it, after a free, easy morning." },
+          options: [ P("Grateful Dead House — 710 Ashbury", "LANDMARK", "Must-see", "Haight-Ashbury", "haight", { match: "The Dead's home, on Jerry's birthday", hours: "Sidewalk view · anytime", price: "Free", why: "The purple Victorian at 710 Ashbury where the Grateful Dead lived communally 1966–68. It's a private home, so it's a sidewalk photo — but there's nowhere more fitting to stand on Jerry Garcia's birthday. The Haight & Ashbury street sign and the vintage row (Love on Haight, Held Over) are a block away.", lat: 37.7699, lng: -122.447, web: "https://en.wikipedia.org/wiki/Grateful_Dead_House", source: "Lonely Planet / SF Travel", verifiedOn: "Aug 1, 2026" }),
+                     P("Amoeba Music", "RECORD STORE", "Must-see", "1855 Haight St · Upper Haight", "haight2", { rating: { value: 4.8 }, match: "One of the world's biggest record stores", hours: "11:00 AM – 8:00 PM", price: "Free to browse", why: "A cathedral of vinyl, CDs and memorabilia in the heart of the Upper Haight — easily an hour, and free in-store shows land on weekends. It's ten minutes' walk from the Dead house.", lat: 37.7695, lng: -122.4536, web: "https://www.amoeba.com/", source: "amoeba.com", verifiedOn: "Aug 1, 2026" }),
+                     P("Stoa", "GF BAR", "Dining", "701 Haight St · Lower Haight", "stoaBar", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.7 }, match: "Dedicated GF + dairy-free · opens 4pm", hours: "Daily from 4:00 PM · closed Sun", price: "$$", why: "A cocktail bar with a 100%-gluten-free-and-dairy-free kitchen — tacos, wings, waffles, all celiac-safe — a short hop east in the Lower Haight. Opens at 4, no reservations. Your safe bite before the Nob Hill jazz.", lat: 37.7719, lng: -122.4339, web: "https://www.stoabar.com/", source: "Find Me Gluten Free", verifiedOn: "Aug 1, 2026", dietNote: "Dedicated gluten-free AND dairy-free kitchen — no cross-contact questions." }) ] },
         { id: "d2-swing", time: "6:00 PM", isAnchor: true, anchorLabel: "LIVE MUSIC", transit: { label: "California St cable car to Nob Hill" }, leaveBy: "7:30 PM",
           options: [ P("Top of the Mark — Swing Four", "JAZZ", "Trending", "Nob Hill", "topMark", { match: "$15 cover · early set", hours: "6:00 PM – 7:30 PM", price: "$$", why: "Nick Rossi & the Swing Four play the penthouse early enough that you can still make the Dawn Club downtown after. $15 cover.", lat: 37.7924, lng: -122.4103, web: "https://www.topofthemark.com/", uncertainty: "Top of the Mark doesn't publish its live-music lineup far ahead — confirm the Saturday act and cover before counting on it: (415) 616-6916." }) ] },
         { id: "d2-dawn", time: "8:00 PM", isAnchor: true, anchorLabel: "JAZZ", transit: { label: "9-min walk off Market" },
@@ -199,23 +201,25 @@ function buildDays(): Day[] {
     },
     {
       id: "aug2", weekday: "Sunday", dayNum: "02", month: "AUG", dateLong: "August 2", hero: IMG.sunHero,
-      title: "Your own sequence — coffee on Polk, an hour at The Interval, the waterfront on foot, then jazz.",
-      walk: "5.2 km", cost: "≈ $130",
+      title: "Coffee on Polk, an Irish coffee at the Buena Vista, an hour at The Interval, the waterfront on foot, then a late jazz set.",
+      walk: "5.5 km", cost: "≈ $145",
       weather: { def: { cond: "cloud", label: "Fog a.m. → clear 19°" }, alt: { cond: "sun", label: "Clear 20°" } },
       contingency: { text: "The 'Denim Dream' residency plays both Saturday and Sunday; the Black Cat is closed Mon & Tue, so Sunday is the night the whole chain fits. Call to lock the Sunday booking.", segId: "d3-cat", optIdx: 0, applyLabel: "Call (415) 358-1999" },
       wow: { title: "The Interval at Long Now", sub: "Cocktails inside a 10,000-year clock", blurb: "Part award-winning bar, part museum of long-term thinking — a chalkboard robot, an eight-foot mechanical solar system, and prototypes of a clock built to run for ten millennia. No reservations; arrive at 3pm opening.", key: "interval" },
       segments: [
         { id: "d3-frank", time: "10:30 AM", isAnchor: true, anchorLabel: "COFFEE", transit: { label: "Powell/Hyde cable car → Hyde & Union" }, leaveBy: "12:00 PM",
-          options: [ P("Saint Frank", "CAFÉ · PHOTO", "Cafés", "Russian Hill", "saintFrank", { rating: { value: 4.6 }, match: "Your pick", hours: "7:00 AM – 6:00 PM", price: "$$", why: "A minimalist Scandinavian room on Polk with house-made almond-macadamia milk. Take the Powell/Hyde cable car over Russian Hill and get off at Hyde & Union — the scenic ride you wanted, two blocks from the door.", lat: 37.7975, lng: -122.422, web: "https://www.saintfrankcoffee.com/", uncertainty: "Hours unverified — confirm before a special trip." }) ] },
+          options: [ P("Saint Frank", "CAFÉ · PHOTO", "Cafés", "Russian Hill", "lombard", { rating: { value: 4.6 }, match: "Your pick", hours: "7:00 AM – 6:00 PM", price: "$$", why: "A minimalist Scandinavian room on Polk with house-made almond-macadamia milk. Take the Powell/Hyde cable car over Russian Hill and get off at Hyde & Union — the scenic ride you wanted, two blocks from the door.", lat: 37.7975, lng: -122.422, web: "https://www.saintfrankcoffee.com/", uncertainty: "Hours unverified — confirm before a special trip." }) ] },
+        { id: "d3-buenavista", time: "1:00 PM", isAnchor: true, anchorLabel: "IRISH COFFEE", transit: { label: "Powell/Hyde cable car to the Hyde St turnaround — it stops at the door" }, leaveBy: "2:40 PM",
+          options: [ P("The Buena Vista", "IRISH COFFEE", "Must-see", "2765 Hyde St · Aquatic Park", "buenaVista", { diet: { level: "caution", label: "Irish coffee is GF; food isn't" }, rating: { value: 4.5 }, match: "The house that made Irish coffee famous", hours: "Sun from 8:00 AM · kitchen to 9:30", price: "$$", why: "The San Francisco institution that brought Irish coffee to America in 1952 — they still pour up to 2,000 a day, lined up along the marble bar. It sits right at the Powell/Hyde cable-car turnaround by Aquatic Park, a short walk from The Interval. The Irish coffee — whiskey, coffee, sugar, lightly whipped cream — is naturally gluten-free.", lat: 37.8059, lng: -122.4205, web: "https://www.thebuenavista.com/", source: "Wikipedia / SF Travel", verifiedOn: "Aug 2, 2026", dietNote: "The Irish coffee is gluten-free; the pub kitchen is not celiac-safe, so keep it to the coffee." }) ] },
         { id: "d3-interval", time: "3:00 PM", isAnchor: true, anchorLabel: "SIGNATURE", transit: { label: "Car to Fort Mason · ≈12 min" }, leaveBy: "4:15 PM",
           options: [ P("The Interval at Long Now", "VIEW", "Must-see", "Fort Mason", "fortMason", { rating: { value: 4.8 }, match: "Opens 3pm Sunday — this sets the clock", hours: "Sun 3:00 PM – 10:00 PM", price: "$$", why: "Arrive at opening — it's small and takes no reservations. A floor-to-ceiling library, classic cocktails, and 10,000-year-clock prototypes. This 3pm Sunday opening is why the whole day chains from here.", lat: 37.8065, lng: -122.431, web: "https://theinterval.org/" }) ] },
         { id: "d3-walk", time: "4:15 PM", anchorLabel: "WALK", transit: { label: "Flat waterfront path" },
           options: [ P("Embarcadero walk", "WALK", "Outdoors", "Fort Mason → Ferry Building", "pier39", { match: "≈4 km, ~1 hr, flat", price: "Free", why: "Fort Mason → Aquatic Park → the Wharf → Pier 39 → the Ferry Building. The best long walk in the city, and the fog has usually burned off by mid-afternoon. Bring the shell — it's the windward side.", lat: 37.8, lng: -122.41 }) ] },
-        { id: "d3-din", time: "7:45 PM", transit: { label: "You're already at the water" },
-          options: [ P("XICA", "DINNER", "Dining", "1265 Battery St · near Embarcadero", "xica", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe on the water", hours: "11:30 AM – 9:00 PM (11 AM weekends)", price: "$$", why: "An entirely gluten-free Mexican kitchen at Levi's Plaza on the Embarcadero — no cross-contamination questions, minutes from where the walk ends.", lat: 37.8016, lng: -122.4005, web: "https://xicasf.com/", uncertainty: "Verified 100% gluten-free; the kitchen closes at 9pm, so book ahead for this 7:45 sitting." }),
-                     P("La Mar Cocina Peruana", "DINNER", "Dining", "Embarcadero", "laMar", { diet: { level: "caution", label: "GF-friendly" }, match: "Upscale waterfront", hours: "5:00 PM – 10:00 PM", price: "$$$", why: "Ceviche-led Peruvian with sweeping bay views — much of the menu is naturally gluten-free, but confirm with the kitchen.", lat: 37.7967, lng: -122.3945, web: "https://lamarsf.com/" }) ] },
-        { id: "d3-cat", time: "8:00 PM", isAnchor: true, anchorLabel: "JAZZ SUPPER CLUB", transit: { label: "Take a car — Tenderloin at night" },
-          options: [ P("Black Cat — Denim Dream", "JAZZ", "Must-see", "Tenderloin", "blackCat", { match: "Dinner + show, one booking", hours: "Sun 6:00 PM – 11:00 PM", price: "$$$", why: "A jazz supper club, so dinner and the show are one booking — Daniel Winshall & PHER's 'Denim Dream' residency, with sets at 7 and 9:30pm. It plays both Saturday and Sunday; the club is closed Monday and Tuesday, so Sunday is the night this whole day fits.", lat: 37.784, lng: -122.413, book: "tel:+14153581999", web: "https://blackcatsf.com/", dietNote: "Ask about gluten-free options when you reserve; take a car both ways." }) ] },
+        { id: "d3-din", time: "6:15 PM", transit: { label: "You're already at the water" },
+          options: [ P("XICA", "DINNER", "Dining", "1265 Battery St · near Embarcadero", "sunHero", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe on the water", hours: "11:30 AM – 9:00 PM (11 AM weekends)", price: "$$", why: "An entirely gluten-free Mexican kitchen at Levi's Plaza on the Embarcadero — no cross-contamination questions, minutes from where the walk ends.", lat: 37.8016, lng: -122.4005, web: "https://xicasf.com/", uncertainty: "Verified 100% gluten-free; the kitchen closes at 9pm, so book the early 6:15 sitting." }),
+                     P("La Mar Cocina Peruana", "DINNER", "Dining", "Embarcadero", "pier39", { diet: { level: "caution", label: "GF-friendly" }, match: "Upscale waterfront", hours: "5:00 PM – 10:00 PM", price: "$$$", why: "Ceviche-led Peruvian with sweeping bay views — much of the menu is naturally gluten-free, but confirm with the kitchen.", lat: 37.7967, lng: -122.3945, web: "https://lamarsf.com/" }) ] },
+        { id: "d3-cat", time: "9:30 PM", isAnchor: true, anchorLabel: "LATE JAZZ SET", transit: { label: "Take a car — Tenderloin at night" },
+          options: [ P("Black Cat — Denim Dream", "JAZZ", "Must-see", "Tenderloin", "nightSkyline", { match: "The 9:30 set — eat at XICA first", hours: "Sun 6:00 PM – 11:00 PM · sets 7 & 9:30", price: "$$$", why: "Daniel Winshall & PHER's 'Denim Dream' residency plays sets at 7 and 9:30pm. The supper-club kitchen isn't dedicated gluten-free, so eat celiac-safe at XICA first and come for the 9:30 set — you still get the room and the music. It plays Saturday and Sunday; closed Monday and Tuesday.", lat: 37.784, lng: -122.413, book: "tel:+14153581999", web: "https://blackcatsf.com/", dietNote: "Not a celiac-safe kitchen — eat beforehand; take a car both ways." }) ] },
       ],
     },
     {
@@ -250,7 +254,7 @@ function buildDays(): Day[] {
         { id: "d5-alcatraz", time: "5:50 PM", isAnchor: true, anchorLabel: "MUST-DO", transit: { label: "Flat walk or car to Pier 33" }, leaveBy: "8:40 PM",
           options: [ P("Alcatraz Night Tour", "FERRY", "Must-see", "Pier 33", "tueHero", { rating: { value: 4.9 }, match: "Your must-do · 6:30 sailing", hours: "Board 5:50 · back 8:40", price: "$59.65", why: "Be at Pier 33 by 5:50 for the 6:30 sailing — you get sunset from the island and the quietest cell house of the day. It sells out; book well ahead.", lat: 37.808, lng: -122.41, book: "https://www.cityexperiences.com/san-francisco/city-cruises/alcatraz/", web: "https://www.cityexperiences.com/san-francisco/city-cruises/alcatraz/", dietNote: "Coldest thing all trip: windproof jacket, long trousers, closed shoes, and a hat." }) ] },
         { id: "d5-din", time: "9:00 PM", transit: { label: "Minutes from Pier 33" },
-          options: [ P("XICA", "DINNER", "Dining", "1265 Battery St · near Embarcadero", "xica", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe, close to the pier", hours: "11:30 AM – 9:00 PM (11 AM weekends)", price: "$$", why: "Off the cold ferry and straight into a warm, entirely gluten-free room minutes from the pier — the natural last-night dinner.", lat: 37.8016, lng: -122.4005, web: "https://xicasf.com/", uncertainty: "The kitchen closes at 9pm and you dock at 8:40 — call ahead to hold a late table, or take the earlier 5:55 sailing." }) ] },
+          options: [ P("XICA", "DINNER", "Dining", "1265 Battery St · near Embarcadero", "sunHero", { diet: { level: "safe", label: "100% gluten-free" }, rating: { value: 4.5 }, match: "Celiac-safe, close to the pier", hours: "11:30 AM – 9:00 PM (11 AM weekends)", price: "$$", why: "Off the cold ferry and straight into a warm, entirely gluten-free room minutes from the pier — the natural last-night dinner.", lat: 37.8016, lng: -122.4005, web: "https://xicasf.com/", uncertainty: "The kitchen closes at 9pm and you dock at 8:40 — call ahead to hold a late table, or take the earlier 5:55 sailing." }) ] },
       ],
     },
   ];

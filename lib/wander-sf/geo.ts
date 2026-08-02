@@ -3,7 +3,7 @@
 export const HOME = { lat: 37.7887, lng: -122.4097 };
 
 export function uimg(id: string): string {
-  if (id.startsWith("http")) return id;
+  if (id.startsWith("http") || id.startsWith("/")) return id;
   return "https://images.unsplash.com/photo-" + id + "?auto=format&fit=crop&w=900&q=72";
 }
 

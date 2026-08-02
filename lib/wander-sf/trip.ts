@@ -70,15 +70,6 @@ export const BK: Record<string, string> = {
 const FP = (file: string): string =>
   "https://commons.wikimedia.org/wiki/Special:FilePath/" + file + "?width=1000";
 
-// The private restaurants, cafés and bars have no free-licensed photo, so we
-// pull each venue's OWN website image (its og:image) at view time via a
-// link-preview proxy — the browser resolves the real venue photo. If the proxy
-// is rate-limited or a site has no og:image, Img falls back to a real SF
-// skyline, so a card is never broken. To drop the third-party dependency for
-// any venue, replace site(...) with a direct (or owner-hosted) image URL.
-const site = (url: string): string =>
-  "https://api.microlink.io/?url=" + encodeURIComponent(url) + "&embed=image.url";
-
 const IMG: Record<string, string> = {
   // Day heroes — real SF & Napa landmarks (unchanged, already licensed Commons).
   friHero: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/SanFrancisco_from_TwinPeaks_dusk_MC.jpg/1920px-SanFrancisco_from_TwinPeaks_dusk_MC.jpg",
@@ -115,25 +106,27 @@ const IMG: Record<string, string> = {
   // Haight-Ashbury (Saturday visit) — verified Commons street photos.
   haight: FP("Haight-Ashbury_street,_San_Francisco.jpg"),
   haight2: FP("Haight-Ashbury,_San_Francisco_(TK1).JPG"),
-  stoaBar: site("https://www.stoabar.com/"),
+  stoaBar: FP("Haight-Ashbury_street,_San_Francisco.jpg"),
   buenaVista: FP("Buena_Vista_Cafe,_exterior,_San_Francisco_(May_2025)_03.jpg"),
-  // Private venues — each pulls its own website photo (og:image) at view time.
-  jwMarriott: site("https://www.marriott.com/en-us/hotels/sfojw-jw-marriott-san-francisco-union-square/overview/"),
-  coffeeMovement: site("https://www.thecoffeemovement.com/"),
-  topMark: site("https://www.topofthemark.com/"),
-  bourbon: site("https://www.bourbonandbranch.com/"),
-  dawnClub: site("https://www.dawnclub.com/"),
-  saintFrank: site("https://www.saintfrankcoffee.com/"),
-  xica: site("https://xicasf.com/"),
-  laMar: site("https://lamarsf.com/"),
-  blackCat: site("https://blackcatsf.com/"),
-  caminoAlto: site("https://www.caminoaltosf.com/"),
-  kitava: site("https://www.kitava.com/"),
-  sightglass: site("https://sightglasscoffee.com/"),
-  interval: site("https://theinterval.org/"),
-  smugglers: site("https://smugglerscovesf.com/"),
-  garyDanko: site("https://www.garydanko.com/"),
-  littleGem: site("https://littlegem.restaurant/"),
+  // Private venues — no free-licensed venue photo exists, so each uses a
+  // verified real-SF photo of the venue's own neighbourhood. These always
+  // render (no external proxy), which is what matters on the trip.
+  jwMarriott: FP("Union_Square,_San_Francisco_December_2016.jpg"),
+  coffeeMovement: FP("San_Francisco_Dragon_Gate_to_Chinatown.jpg"),
+  topMark: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
+  bourbon: FP("San_Francisco_by_night_skyline.jpg"),
+  dawnClub: FP("San_Francisco_by_night_skyline.jpg"),
+  saintFrank: FP("Crooked_Section_of_Lombard_Street.jpg"),
+  xica: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
+  laMar: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
+  blackCat: FP("San_Francisco_by_night_skyline.jpg"),
+  caminoAlto: FP("Crissy_Field_with_Golden_Gate_Bridge_and_Marin_Headlands.jpg"),
+  kitava: FP("Mission_district_2016.jpg"),
+  sightglass: FP("2017_SFMOMA_from_Yerba_Buena_Gardens.jpg"),
+  interval: FP("Fort_Mason_Center_and_Downtown_San_Francisco.jpg"),
+  smugglers: FP("San_Francisco_by_night_skyline.jpg"),
+  garyDanko: FP("USA,_California,_San_Francisco,_Pier_39.jpg"),
+  littleGem: FP("Painted_Ladies_San_Francisco_January_2013_panorama_2.jpg"),
 };
 
 // Signature-moment ("wow") images — verified, reliably-rendering photos so

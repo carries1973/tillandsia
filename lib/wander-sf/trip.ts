@@ -50,7 +50,7 @@ export const SENS: Record<string, string> = {
   NEIGHBOURHOOD: "Low-key · local", BAR: "Dim · late", FERRY: "Cold · windy · dress warm",
   "CABLE CAR": "Iconic · queues", FLIGHT: "Transit", "YOUR BASE": "Calm base", TOUR: "Full-day · guided",
   "RECORD STORE": "Browse · lively", LANDMARK: "Photo stop · outdoors", "GF BAR": "Dim · celiac-safe",
-  "IRISH COFFEE": "Historic · lively · queues", "WINE TASTING": "Vineyard · relaxed",
+  "IRISH COFFEE": "Historic · lively · queues", "WINE TASTING": "Vineyard · relaxed", BLUES: "Live music · intimate",
 };
 export const OUT: Record<string, number> = {
   WALK: 1, MARKET: 1, FESTIVAL: 1, GARDEN: 1, VIEW: 1, FERRY: 1, "CABLE CAR": 1, NEIGHBOURHOOD: 1, TOUR: 1, LANDMARK: 1, "WINE TASTING": 1,
@@ -201,10 +201,10 @@ function buildDays(): Day[] {
     },
     {
       id: "aug2", weekday: "Sunday", dayNum: "02", month: "AUG", dateLong: "August 2", hero: IMG.sunHero,
-      title: "Coffee on Polk, an Irish coffee at the Buena Vista, an hour at The Interval, the waterfront on foot, then a steak dinner at Union Square and a nightcap high above the city.",
+      title: "Coffee on Polk, an Irish coffee at the Buena Vista, an hour at The Interval, the waterfront on foot, then a steak dinner at Union Square and Hill Country blues around the corner.",
       walk: "5.5 km", cost: "≈ $145",
       weather: { def: { cond: "cloud", label: "Fog a.m. → clear 19°" }, alt: { cond: "sun", label: "Clear 20°" } },
-      contingency: { text: "Mastro's closes at 9pm on Sundays — book the early 6:45 seating so you're not rushed, then it's a two-block stroll to the Cityscape rooftop, open to midnight.", segId: "d3-din", optIdx: 0, applyLabel: "Call (415) 363-9539" },
+      contingency: { text: "Mastro's opens at 5pm — an early seating leaves time to walk around the corner to Biscuits & Blues for the 7pm show.", segId: "d3-din", optIdx: 0, applyLabel: "Call (415) 363-9539" },
       wow: { title: "The Interval at Long Now", sub: "Cocktails inside a 10,000-year clock", blurb: "Part award-winning bar, part museum of long-term thinking — a chalkboard robot, an eight-foot mechanical solar system, and prototypes of a clock built to run for ten millennia. No reservations; arrive at 3pm opening.", key: "interval" },
       segments: [
         { id: "d3-frank", time: "10:30 AM", isAnchor: true, anchorLabel: "COFFEE", transit: { label: "Powell/Hyde cable car → Hyde & Union" }, leaveBy: "12:00 PM",
@@ -215,10 +215,10 @@ function buildDays(): Day[] {
           options: [ P("The Interval at Long Now", "VIEW", "Must-see", "Fort Mason", "fortMason", { rating: { value: 4.8 }, match: "Opens 3pm Sunday — this sets the clock", hours: "Sun 3:00 PM – 10:00 PM", price: "$$", why: "Arrive at opening — it's small and takes no reservations. A floor-to-ceiling library, classic cocktails, and 10,000-year-clock prototypes. This 3pm Sunday opening is why the whole day chains from here.", lat: 37.8065, lng: -122.431, web: "https://theinterval.org/" }) ] },
         { id: "d3-walk", time: "4:15 PM", anchorLabel: "WALK", transit: { label: "Flat waterfront path" },
           options: [ P("Embarcadero walk", "WALK", "Outdoors", "Fort Mason → Ferry Building", "pier39", { match: "≈4 km, ~1 hr, flat", price: "Free", why: "Fort Mason → Aquatic Park → the Wharf → Pier 39 → the Ferry Building. The best long walk in the city, and the fog has usually burned off by mid-afternoon. Bring the shell — it's the windward side.", lat: 37.8, lng: -122.41 }) ] },
-        { id: "d3-din", time: "6:45 PM", isAnchor: true, anchorLabel: "STEAKHOUSE", transit: { label: "Two blocks from the hotel — Geary & Mason" },
+        { id: "d3-din", time: "5:30 PM", isAnchor: true, anchorLabel: "STEAKHOUSE", transit: { label: "Two blocks from the hotel — Geary & Mason" },
           options: [ P("Mastro's Steakhouse", "DINNER", "Dining", "399 Geary St · Union Square", "nightSkyline", { diet: { level: "caution", label: "Steak & seafood GF — confirm" }, rating: { value: 4.6 }, match: "Fancy + two blocks from the hotel", hours: "Sun 5:00 – 9:00 PM", price: "$$$$", why: "The Union Square power steakhouse — butter-basted steaks, chilled seafood towers, and live music up in the penthouse lounge. Dark, plush and romantic, two blocks from the JW Marriott at Geary & Mason. Book ahead: (415) 363-9539.", lat: 37.7869, lng: -122.4103, web: "https://www.mastrosrestaurants.com/location/mastros-steakhouse-san-francisco/", book: "tel:+14153639539", source: "Mastro's / OpenTable", verifiedOn: "Aug 2, 2026", uncertainty: "Steaks, seafood and many sides are naturally gluten-free, but it's not a dedicated GF kitchen — tell them it's celiac when you book." }) ] },
-        { id: "d3-view", time: "9:15 PM", isAnchor: true, anchorLabel: "ROMANTIC VIEW FINISH", transit: { label: "Two blocks to the Hilton — 333 O'Farrell" },
-          options: [ P("Cityscape Lounge", "VIEW", "Must-see", "46th floor · Hilton Union Square", "friHero", { rating: { value: 4.4 }, match: "Skyline + Golden Gate — a nightcap above the city", hours: "Sun 4:00 PM – midnight", price: "$$$", why: "End the night 46 floors up: unobstructed views over the city lights out to the Golden Gate, a quiet cocktail, and the whole trip laid out below you. Two blocks from the hotel and open to midnight — no reservations for two, so walk in and ask for a window seat.", lat: 37.7856, lng: -122.4103, web: "https://www.cityscapeskybar.com/", source: "SF Travel / Cityscape", verifiedOn: "Aug 2, 2026", dietNote: "Cocktails and wine are gluten-free; you'll have dined at Mastro's, so this is just the view and a drink." }) ] },
+        { id: "d3-blues", time: "7:00 PM", isAnchor: true, anchorLabel: "BLUES CLUB", transit: { label: "Around the corner — 401 Mason, a block from the hotel" },
+          options: [ P("Biscuits & Blues — Carlos Elliot Jr", "BLUES", "Must-see", "401 Mason St · Union Square", "nightSkyline", { match: "Hill Country blues, a block from the hotel", hours: "Doors 5:15 · show 7:00 PM", price: "$20–50", why: "The legendary underground blues room on Mason St, a block from the hotel — Carlos Elliot Jr, who carried Mississippi Hill Country blues home to the coffee hills of Colombia (guitar and fife in the raw Otha Turner tradition) and was the first artist to represent Colombia at the Memphis Blues Challenge. A raw, joyful close to the night, right by your door.", lat: 37.7871, lng: -122.4098, web: "https://www.biscuitsandblues.com/", source: "Biscuits & Blues", verifiedOn: "Aug 3, 2026", dietNote: "You dined at Mastro's — it's a supper club, so keep it to drinks if you're celiac." }) ] },
       ],
     },
     {

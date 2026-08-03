@@ -78,10 +78,10 @@ const IMG: Record<string, string> = {
   monHero: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Vineyards_of_Napa_Valley_panorama.jpg/1920px-Vineyards_of_Napa_Valley_panorama.jpg",
   tueHero: "/photos/alcatraz.jpg", // Carrie's own shot of Alcatraz from the bay
   cable: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/San_Francisco_cable_car_no._24_en_2016.JPG/1920px-San_Francisco_cable_car_no._24_en_2016.JPG",
-  ggb: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach%2C_March_2018.jpg/1920px-Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach%2C_March_2018.jpg",
+  ggb: "/photos/golden-gate.jpg", // Carrie's Golden Gate — the wine-tour crossing
   // Real San Francisco places — the exact venue, or its actual neighbourhood.
   unionSquare: "/photos/union-square.jpg", // Carrie's Union Square photo
-  chinatown: "/photos/chinatown.jpg", // Carrie's Grant Ave / Chinatown photo
+  chinatown: "/photos/chinatown-dragon.jpg", // Carrie's Chinatown lion-dance dragon
   markHopkins: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
   nightSkyline: FP("San_Francisco_by_night_skyline.jpg"),
   palace: FP("Palace_of_Fine_Arts_in_San_Francisco,_night.jpg"),
@@ -112,7 +112,7 @@ const IMG: Record<string, string> = {
   // verified real-SF photo of the venue's own neighbourhood. These always
   // render (no external proxy), which is what matters on the trip.
   jwMarriott: FP("Union_Square,_San_Francisco_December_2016.jpg"),
-  coffeeMovement: FP("San_Francisco_Dragon_Gate_to_Chinatown.jpg"),
+  coffeeMovement: "/photos/chinatown.jpg", // Carrie's Grant Ave lantern street
   topMark: FP("InterContinental_Mark_Hopkins_San_Francisco_01.JPG"),
   bourbon: FP("San_Francisco_by_night_skyline.jpg"),
   dawnClub: "/photos/dawn-club.jpg", // Carrie's photo of Azure McCall at the Dawn Club
@@ -230,7 +230,7 @@ function buildDays(): Day[] {
       wow: { title: "Palace of Fine Arts at blue hour", sub: "Floodlit rotunda in the lagoon", blurb: "The rotunda lights up after dark and reflects in the lagoon — blue hour, roughly sunset to thirty minutes after, is the real shot, not sunset itself.", key: "palace" },
       segments: [
         { id: "d4-wine", time: "8:45 AM", isAnchor: true, anchorLabel: "DAY TOUR", transit: { label: "Union Square pickup — confirm exact spot with operator" }, leaveBy: "6:00 PM",
-          options: [ P("Napa & Sonoma bus tour", "TOUR", "Outdoors", "Wine Country", "monHero", { match: "Tastings included", hours: "8:45 AM – ~6:00 PM", price: "$$$", why: "A full-day guided loop through Napa and Sonoma with tastings — pickup is near the hotel — the main operator (Gray Line) departs 478 Post St; confirm your exact spot with the tour operator. Wine country is outside every rideshare's range, so a coach or private driver is the move. Your first pour is at Roche, just below.", lat: 37.7880, lng: -122.4088, web: "https://www.google.com/search?q=Napa+Sonoma+wine+tour+from+San+Francisco", uncertainty: "Confirm the tour runs Monday and re-confirm the pickup point." }) ] },
+          options: [ P("Napa & Sonoma bus tour", "TOUR", "Outdoors", "Wine Country", "ggb", { match: "Tastings included", hours: "8:45 AM – ~6:00 PM", price: "$$$", why: "A full-day guided loop through Napa and Sonoma with tastings — pickup is near the hotel — the main operator (Gray Line) departs 478 Post St; confirm your exact spot with the tour operator. Wine country is outside every rideshare's range, so a coach or private driver is the move. Your first pour is at Roche, just below.", lat: 37.7880, lng: -122.4088, web: "https://www.google.com/search?q=Napa+Sonoma+wine+tour+from+San+Francisco", uncertainty: "Confirm the tour runs Monday and re-confirm the pickup point." }) ] },
         { id: "d4-roche", time: "10:45 AM", isAnchor: true, anchorLabel: "FIRST WINE STOP", transit: { label: "First winery up from the city — Carneros, ~50 min" }, leaveBy: "12:15 PM",
           options: [ P("Roche Winery & Vineyards", "WINE TASTING", "Outdoors", "22097A Bonness Rd · Carneros, Sonoma", "monHero", { rating: { value: 4.6 }, match: "The gateway winery into Sonoma", hours: "Daily 10:30 AM – 5:00 PM", price: "$$", why: "Your first pour of the day — the Roche family's estate on the Carneros valley floor, the first winery you reach coming up from the city. Tastings on an indoor–outdoor plaza with fire pits and farm tables, known for cool-climate Pinot Noir and Chardonnay. Walk-ins are welcome, but reserve to be safe: (707) 935-7115.", lat: 38.243, lng: -122.487, web: "https://www.rochewinery.com/", book: "https://www.rochewinery.com/reservations", source: "rochewinery.com", verifiedOn: "Aug 3, 2026", dietNote: "Wine is naturally gluten-free; carry a GF snack for between tastings." }) ] },
         { id: "d4-palace", time: "7:45 PM", isAnchor: true, anchorLabel: "GOLDEN HOUR", transit: { label: "Car to the Marina · ≈15 min" },

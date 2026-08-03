@@ -50,10 +50,10 @@ export const SENS: Record<string, string> = {
   NEIGHBOURHOOD: "Low-key · local", BAR: "Dim · late", FERRY: "Cold · windy · dress warm",
   "CABLE CAR": "Iconic · queues", FLIGHT: "Transit", "YOUR BASE": "Calm base", TOUR: "Full-day · guided",
   "RECORD STORE": "Browse · lively", LANDMARK: "Photo stop · outdoors", "GF BAR": "Dim · celiac-safe",
-  "IRISH COFFEE": "Historic · lively · queues",
+  "IRISH COFFEE": "Historic · lively · queues", "WINE TASTING": "Vineyard · relaxed",
 };
 export const OUT: Record<string, number> = {
-  WALK: 1, MARKET: 1, FESTIVAL: 1, GARDEN: 1, VIEW: 1, FERRY: 1, "CABLE CAR": 1, NEIGHBOURHOOD: 1, TOUR: 1, LANDMARK: 1,
+  WALK: 1, MARKET: 1, FESTIVAL: 1, GARDEN: 1, VIEW: 1, FERRY: 1, "CABLE CAR": 1, NEIGHBOURHOOD: 1, TOUR: 1, LANDMARK: 1, "WINE TASTING": 1,
 };
 export const BK: Record<string, string> = {
   "d3-din": "XICA — 100% gluten-free, on the Embarcadero",
@@ -223,14 +223,16 @@ function buildDays(): Day[] {
     },
     {
       id: "aug3", weekday: "Monday", dayNum: "03", month: "AUG", dateLong: "August 3", hero: IMG.monHero,
-      title: "Napa and Sonoma by coach, back for the floodlit rotunda at dusk.",
+      title: "Sonoma and Napa wine country — first pour at Roche — back for the floodlit rotunda at dusk.",
       walk: "1.8 km", cost: "≈ $360",
       weather: { def: { cond: "sun", label: "Warm inland · sunny 28°" }, alt: { cond: "sun", label: "Hot 31°" } },
       contingency: null,
       wow: { title: "Palace of Fine Arts at blue hour", sub: "Floodlit rotunda in the lagoon", blurb: "The rotunda lights up after dark and reflects in the lagoon — blue hour, roughly sunset to thirty minutes after, is the real shot, not sunset itself.", key: "palace" },
       segments: [
         { id: "d4-wine", time: "8:45 AM", isAnchor: true, anchorLabel: "DAY TOUR", transit: { label: "Union Square pickup — confirm exact spot with operator" }, leaveBy: "6:00 PM",
-          options: [ P("Napa & Sonoma bus tour", "TOUR", "Outdoors", "Wine Country", "monHero", { match: "Tastings included", hours: "8:45 AM – ~6:00 PM", price: "$$$", why: "A full-day guided loop through Napa and Sonoma with tastings — pickup is near the hotel — the main operator (Gray Line) departs 478 Post St; confirm your exact spot with the tour operator. Wine country is outside every rideshare's range, so the coach is the move.", lat: 37.7880, lng: -122.4088, web: "https://www.google.com/search?q=Napa+Sonoma+wine+tour+from+San+Francisco", uncertainty: "Confirm the tour runs Monday and re-confirm the pickup point." }) ] },
+          options: [ P("Napa & Sonoma bus tour", "TOUR", "Outdoors", "Wine Country", "monHero", { match: "Tastings included", hours: "8:45 AM – ~6:00 PM", price: "$$$", why: "A full-day guided loop through Napa and Sonoma with tastings — pickup is near the hotel — the main operator (Gray Line) departs 478 Post St; confirm your exact spot with the tour operator. Wine country is outside every rideshare's range, so a coach or private driver is the move. Your first pour is at Roche, just below.", lat: 37.7880, lng: -122.4088, web: "https://www.google.com/search?q=Napa+Sonoma+wine+tour+from+San+Francisco", uncertainty: "Confirm the tour runs Monday and re-confirm the pickup point." }) ] },
+        { id: "d4-roche", time: "10:45 AM", isAnchor: true, anchorLabel: "FIRST WINE STOP", transit: { label: "First winery up from the city — Carneros, ~50 min" }, leaveBy: "12:15 PM",
+          options: [ P("Roche Winery & Vineyards", "WINE TASTING", "Outdoors", "22097A Bonness Rd · Carneros, Sonoma", "monHero", { rating: { value: 4.6 }, match: "The gateway winery into Sonoma", hours: "Daily 10:30 AM – 5:00 PM", price: "$$", why: "Your first pour of the day — the Roche family's estate on the Carneros valley floor, the first winery you reach coming up from the city. Tastings on an indoor–outdoor plaza with fire pits and farm tables, known for cool-climate Pinot Noir and Chardonnay. Walk-ins are welcome, but reserve to be safe: (707) 935-7115.", lat: 38.243, lng: -122.487, web: "https://www.rochewinery.com/", book: "https://www.rochewinery.com/reservations", source: "rochewinery.com", verifiedOn: "Aug 3, 2026", dietNote: "Wine is naturally gluten-free; carry a GF snack for between tastings." }) ] },
         { id: "d4-palace", time: "7:45 PM", isAnchor: true, anchorLabel: "GOLDEN HOUR", transit: { label: "Car to the Marina · ≈15 min" },
           options: [ P("Palace of Fine Arts", "VIEW", "Must-see", "Marina", "palace", { match: "Blue hour is the shot", hours: "Grounds always open · free", price: "Free", why: "Golden hour is around 7:40 and sunset just after 8:15; the blue hour after — roughly to 8:45 — is when the floodlit rotunda mirrored in the lagoon is the picture. Ten minutes from a fully gluten-free dinner at Camino Alto.", lat: 37.803, lng: -122.4485, web: "https://palaceoffinearts.org/" }),
                      P("Crissy Field", "WALK", "Outdoors", "Presidio", "crissy", { match: "Bridge silhouette at sunset", hours: "Always open · free", price: "Free", why: "One km from the Palace — the sun sets right beside the Golden Gate here, so the bridge silhouettes. Cold and windy: bring the shell.", lat: 37.804, lng: -122.465, web: "https://www.parksconservancy.org/parks/crissy-field" }) ] },

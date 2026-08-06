@@ -32,7 +32,7 @@ export function defaultState(): WanderState {
     dayId: "aug6",
     placeSegId: null,
     sheetSegId: null,
-    mapDayId: "aug6",
+    mapDayId: "all",
     query: "",
     exploreCat: "All",
     exploreSaved: false,

@@ -659,51 +659,85 @@ export default function Wander() {
   }
 
   // ============================ MAP ============================
+  // Each day gets its own hue — echoing the care-group accents — so the whole
+  // trip reads at a glance on the "All days" overview.
+  const DAY_COLOR: Record<string, string> = {
+    aug6: "#C2694E",
+    aug7: "#4F63B4",
+    aug8: "#5E8A57",
+    aug9: "#8E6FB0",
+  };
+
   function renderMap() {
-    const mdd = dayById(S.mapDayId);
-    const mapPts = mdd.segments
-      .map((seg) => ({ seg, p: cur(seg) }))
-      .filter((x) => x.p.lat != null && x.p.catLabel !== "FLIGHT" && x.p.catLabel !== "YOUR BASE");
-    // Always anchor the map on your home base, then the day's stops — the
-    // hub-and-spoke the itinerary keeps promising, finally made visible.
+    const isAll = S.mapDayId === "all" || !M.days.some((d) => d.id === S.mapDayId);
+    const daysToShow = isAll ? M.days : [dayById(S.mapDayId)];
+
+    // Home base + every stop we're plotting, projected together so the map
+    // always fits the base and the day(s) on screen.
+    const groups = daysToShow.map((d) => ({
+      day: d,
+      color: DAY_COLOR[d.id] || "#1E2447",
+      stops: d.segments
+        .map((seg) => ({ seg, p: cur(seg) }))
+        .filter((x) => x.p.lat != null && x.p.catLabel !== "FLIGHT" && x.p.catLabel !== "YOUR BASE"),
+    }));
+    const flatStops = groups.flatMap((g) => g.stops);
     const proj = geo.project([
       { lat: geo.HOME.lat, lng: geo.HOME.lng },
-      ...mapPts.map((x) => ({ lat: x.p.lat as number, lng: x.p.lng as number })),
+      ...flatStops.map((x) => ({ lat: x.p.lat as number, lng: x.p.lng as number })),
     ]);
     const base = proj.pts[0];
     const stopPts = proj.pts.slice(1);
-    // Dashed loop: out from base, through the day's stops, and back.
-    const loop =
-      "M" + base.x.toFixed(1) + " " + base.y.toFixed(1) + " " +
-      stopPts.map((p) => "L" + p.x.toFixed(1) + " " + p.y.toFixed(1)).join(" ") +
-      (stopPts.length ? " L" + base.x.toFixed(1) + " " + base.y.toFixed(1) : "");
-    const pins = mapPts.map((x, i) => {
-      const px = stopPts[i].x;
-      const py = stopPts[i].y;
-      return {
-        x: px,
-        cy: py - 6,
-        ty: py - 1,
-        tail: "M" + (px - 6) + " " + (py - 1) + " L" + (px + 6) + " " + (py - 1) + " L" + px + " " + (py + 9) + " Z",
-        n: i + 1,
-        name: x.p.name,
-        time: x.seg.time,
-        img: x.p.img,
-        seed: x.p.seed + "-map-" + x.seg.id,
-        dirUrl: geo.dir(x.p.lat, x.p.lng),
-        segId: x.seg.id,
-      };
+
+    let gi = 0;
+    const laid = groups.map((g) => {
+      const pins = g.stops.map((x, i) => {
+        const pt = stopPts[gi++];
+        return {
+          x: pt.x,
+          py: pt.y,
+          cy: pt.y - 6,
+          ty: pt.y - 1,
+          tail: "M" + (pt.x - 6) + " " + (pt.y - 1) + " L" + (pt.x + 6) + " " + (pt.y - 1) + " L" + pt.x + " " + (pt.y + 9) + " Z",
+          n: i + 1,
+          name: x.p.name,
+          time: x.seg.time,
+          img: x.p.img,
+          seed: x.p.seed + "-map-" + x.seg.id,
+          dirUrl: geo.dir(x.p.lat, x.p.lng),
+          segId: x.seg.id,
+        };
+      });
+      // Route out from base, through the day's stops — closing the loop back to
+      // base only in single-day view (all-days would be a knot of returns).
+      const route =
+        "M" + base.x.toFixed(1) + " " + base.y.toFixed(1) +
+        pins.map((p) => " L" + p.x.toFixed(1) + " " + p.py.toFixed(1)).join("") +
+        (!isAll && pins.length ? " L" + base.x.toFixed(1) + " " + base.y.toFixed(1) : "");
+      return { ...g, pins, route };
     });
+
+    const baseHouse = (
+      <g onClick={openPlace("d1-hotel")} style={css("cursor:pointer")}>
+        <circle cx={base.x} cy={base.y} r="16" fill="#C9B78C" stroke="#fff" strokeWidth="2.6" />
+        <path d={`M${base.x - 6} ${base.y + 0.5} L${base.x} ${base.y - 6.5} L${base.x + 6} ${base.y + 0.5} Z`} fill="#241E10" />
+        <rect x={base.x - 4.2} y={base.y - 0.2} width="8.4" height="6" rx="0.8" fill="#241E10" />
+        <text x={base.x} y={base.y + 29} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="9.5" fontWeight="700" fill="#8A7A55" letterSpacing="0.6">BASE</text>
+      </g>
+    );
 
     return (
       <div className="scroll" style={css("height:100%;overflow-y:auto;padding:52px 0 104px")}>
         <div style={css("padding:6px 20px 0")}>
           <div style={css("font-family:'Newsreader',serif;font-size:32px;font-weight:500;letter-spacing:-.4px")}>Trip map</div>
-          <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>Routed from your base and back, one day at a time.</div>
+          <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>{isAll ? "Every stop across all four days, from one base." : "Routed from your base and back, one day at a time."}</div>
         </div>
         <div className="scroll" style={css("display:flex;gap:8px;overflow-x:auto;padding:15px 20px 4px")}>
+          <div onClick={() => setState({ mapDayId: "all" })} style={isAll ? css("flex:none;background:#1E2447;color:#fff;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer") : css("flex:none;background:#fff;color:#5B6076;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer;border:1px solid #ECEAE2")}>
+            All days
+          </div>
           {M.days.map((dd) => {
-            const active = dd.id === S.mapDayId;
+            const active = !isAll && dd.id === S.mapDayId;
             return (
               <div key={dd.id} onClick={() => setState({ mapDayId: dd.id })} style={active ? css("flex:none;background:#1E2447;color:#fff;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer") : css("flex:none;background:#fff;color:#5B6076;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer;border:1px solid #ECEAE2")}>
                 {dd.weekday.slice(0, 3)} {dd.dayNum}
@@ -722,37 +756,48 @@ export default function Wander() {
             <rect width="330" height="340" fill="url(#gm)" />
             <path d="M-10 250 Q 130 205 210 250 T 350 235" fill="none" stroke="rgba(120,140,170,.25)" strokeWidth="20" />
             <path d="M120 -10 L150 360" stroke="rgba(200,200,205,.6)" strokeWidth="7" fill="none" />
-            <path d={loop} fill="none" stroke="#1E2447" strokeWidth="2.4" strokeDasharray="1 7" strokeLinecap="round" />
-            {/* home base anchor — a gold house you leave from and return to */}
-            <g onClick={openPlace("d1-hotel")} style={css("cursor:pointer")}>
-              <circle cx={base.x} cy={base.y} r="16" fill="#C9B78C" stroke="#fff" strokeWidth="2.6" />
-              <path d={`M${base.x - 6} ${base.y + 0.5} L${base.x} ${base.y - 6.5} L${base.x + 6} ${base.y + 0.5} Z`} fill="#241E10" />
-              <rect x={base.x - 4.2} y={base.y - 0.2} width="8.4" height="6" rx="0.8" fill="#241E10" />
-              <text x={base.x} y={base.y + 29} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="9.5" fontWeight="700" fill="#8A7A55" letterSpacing="0.6">BASE</text>
-            </g>
-            {pins.map((p) => (
-              <g key={p.segId} onClick={openPlace(p.segId)} style={css("cursor:pointer")}>
-                <circle cx={p.x} cy={p.cy} r="15" fill="#1E2447" stroke="#fff" strokeWidth="2" />
-                <path d={p.tail} fill="#1E2447" />
-                <text x={p.x} y={p.ty} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="14" fontWeight="700" fill="#fff">{p.n}</text>
-              </g>
+            {laid.map((g) => (
+              <path key={"r-" + g.day.id} d={g.route} fill="none" stroke={isAll ? g.color : "#1E2447"} strokeWidth="2.4" strokeDasharray="1 7" strokeLinecap="round" opacity={isAll ? 0.8 : 1} />
             ))}
+            {baseHouse}
+            {laid.map((g) =>
+              g.pins.map((p) => (
+                <g key={p.segId} onClick={openPlace(p.segId)} style={css("cursor:pointer")}>
+                  <circle cx={p.x} cy={p.cy} r={isAll ? 12 : 15} fill={isAll ? g.color : "#1E2447"} stroke="#fff" strokeWidth="2" />
+                  <path d={p.tail} fill={isAll ? g.color : "#1E2447"} />
+                  <text x={p.x} y={isAll ? p.cy + 4 : p.ty} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize={isAll ? 11 : 14} fontWeight="700" fill="#fff">{p.n}</text>
+                </g>
+              ))
+            )}
           </svg>
         </div>
-        <div style={css("display:flex;align-items:center;gap:16px;padding:11px 22px 0;flex-wrap:wrap")}>
-          <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#8A7A55")}>
-            <span style={css("width:12px;height:12px;border-radius:100px;background:#C9B78C;border:1.5px solid #fff;box-shadow:0 0 0 1px #E3D9BE;flex:none")} />Your base
-          </span>
-          <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#5B6076")}>
-            <span style={css("width:12px;height:12px;border-radius:100px;background:#1E2447;flex:none")} />Day's stops
-          </span>
-          <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#5B6076")}>
-            <span style={css("width:16px;height:0;border-top:2px dotted #1E2447;flex:none")} />Loop out &amp; back
-          </span>
-        </div>
-        <div style={css("padding:16px 20px 0;font-size:11px;letter-spacing:1.2px;font-weight:700;color:#A9974F")}>{(mdd.weekday + " · " + mdd.dateLong).toUpperCase()}</div>
+        {isAll ? (
+          <div style={css("display:flex;align-items:center;gap:12px 16px;padding:12px 22px 0;flex-wrap:wrap")}>
+            <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#8A7A55")}>
+              <span style={css("width:12px;height:12px;border-radius:100px;background:#C9B78C;border:1.5px solid #fff;box-shadow:0 0 0 1px #E3D9BE;flex:none")} />Base
+            </span>
+            {M.days.map((dd) => (
+              <span key={dd.id} style={{ ...css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600"), color: DAY_COLOR[dd.id] }}>
+                <span style={{ ...css("width:12px;height:12px;border-radius:100px;flex:none"), background: DAY_COLOR[dd.id] }} />
+                {dd.weekday.slice(0, 3)}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div style={css("display:flex;align-items:center;gap:16px;padding:11px 22px 0;flex-wrap:wrap")}>
+            <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#8A7A55")}>
+              <span style={css("width:12px;height:12px;border-radius:100px;background:#C9B78C;border:1.5px solid #fff;box-shadow:0 0 0 1px #E3D9BE;flex:none")} />Your base
+            </span>
+            <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#5B6076")}>
+              <span style={css("width:12px;height:12px;border-radius:100px;background:#1E2447;flex:none")} />Day's stops
+            </span>
+            <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#5B6076")}>
+              <span style={css("width:16px;height:0;border-top:2px dotted #1E2447;flex:none")} />Loop out &amp; back
+            </span>
+          </div>
+        )}
         <div style={css("padding:4px 20px 0")}>
-          <div onClick={openPlace("d1-hotel")} style={css("display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EBE3CF;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5);cursor:pointer")}>
+          <div onClick={openPlace("d1-hotel")} style={css("display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EBE3CF;border-radius:14px;padding:9px;margin-top:14px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5);cursor:pointer")}>
             <div style={css("width:26px;height:26px;border-radius:100px;background:#C9B78C;display:flex;align-items:center;justify-content:center;flex:none")}>
               <I.PinFill size={14} color="#241E10" />
             </div>
@@ -764,20 +809,30 @@ export default function Wander() {
               <I.Navigation size={15} />
             </a>
           </div>
-          {pins.map((p) => (
-            <div key={p.segId} style={css("display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5)")}>
-              <div style={css("width:26px;height:26px;border-radius:100px;background:#1E2447;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none")}>{p.n}</div>
-              <Img src={p.img} seed={p.seed} alt={p.name} style={css("width:42px;height:42px;border-radius:10px;object-fit:cover;flex:none")} />
-              <div style={css("flex:1;min-width:0")} onClick={openPlace(p.segId)}>
-                <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1")}>{p.name}</div>
-                <div style={css("font-size:11px;font-weight:600;letter-spacing:.4px;color:#A9974F;margin-top:3px")}>{p.time}</div>
-              </div>
-              <a href={p.dirUrl} target="_blank" rel="noopener" aria-label={"Directions to " + p.name} style={css("width:34px;height:34px;border-radius:100px;background:#F1F0F6;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none")}>
-                <I.Navigation size={15} />
-              </a>
-            </div>
-          ))}
         </div>
+        {laid.map((g) => (
+          <div key={"list-" + g.day.id}>
+            <div style={{ ...css("display:flex;align-items:center;gap:8px;padding:18px 22px 0;font-size:11px;letter-spacing:1.2px;font-weight:700"), color: isAll ? g.color : "#A9974F" }}>
+              {isAll && <span style={{ ...css("width:10px;height:10px;border-radius:100px;flex:none"), background: g.color }} />}
+              {(g.day.weekday + " · " + g.day.dateLong).toUpperCase()}
+            </div>
+            <div style={css("padding:4px 20px 0")}>
+              {g.pins.map((p) => (
+                <div key={p.segId} style={css("display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5)")}>
+                  <div style={{ ...css("width:26px;height:26px;border-radius:100px;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none"), background: isAll ? g.color : "#1E2447" }}>{p.n}</div>
+                  <Img src={p.img} seed={p.seed} alt={p.name} style={css("width:42px;height:42px;border-radius:10px;object-fit:cover;flex:none")} />
+                  <div style={css("flex:1;min-width:0")} onClick={openPlace(p.segId)}>
+                    <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1")}>{p.name}</div>
+                    <div style={css("font-size:11px;font-weight:600;letter-spacing:.4px;color:#A9974F;margin-top:3px")}>{p.time}</div>
+                  </div>
+                  <a href={p.dirUrl} target="_blank" rel="noopener" aria-label={"Directions to " + p.name} style={css("width:34px;height:34px;border-radius:100px;background:#F1F0F6;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none")}>
+                    <I.Navigation size={15} />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -1338,7 +1393,7 @@ export default function Wander() {
         {item(
           S.tab === "map",
           "Map",
-          () => setState({ tab: "map", placeSegId: null, sheetSegId: null }),
+          () => setState({ tab: "map", mapDayId: "all", placeSegId: null, sheetSegId: null }),
           <svg width="23" height="23" viewBox="0 0 24 24" fill="#1E2447" aria-hidden="true"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z" /></svg>,
           <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#A2A6B4" strokeWidth="1.9" strokeLinejoin="round" aria-hidden="true"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z" /><path d="M9 3v16M15 5v16" /></svg>
         )}

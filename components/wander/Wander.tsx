@@ -683,17 +683,227 @@ export default function Wander() {
   }
 
   // ============================ MAP ============================
-  // Each day gets its own hue — echoing the care-group accents — so the whole
-  // trip reads at a glance on the "All days" overview.
+  // Per-day hue for the single-day view; per-type hue for the "Everything" map.
   const DAY_COLOR: Record<string, string> = {
     aug6: "#C2694E",
     aug7: "#4F63B4",
     aug8: "#5E8A57",
     aug9: "#8E6FB0",
   };
+  const KIND_ORDER = ["Events", "Food", "Venues"] as const;
+  const KIND_COLOR: Record<string, string> = {
+    Events: "#B5484E",
+    Food: "#5E8A57",
+    Venues: "#4F63B4",
+  };
+  const kindOf = (catLabel: string, name: string): string => {
+    const c = (catLabel || "").toUpperCase();
+    if (["CONCERT", "FIREWORKS", "FESTIVAL", "EVENT"].indexOf(c) >= 0) return "Events";
+    if (/pride/i.test(name)) return "Events";
+    if (["DINNER", "BREAKFAST", "LUNCH", "GF TREAT", "CAFÉ · PHOTO"].indexOf(c) >= 0) return "Food";
+    return "Venues";
+  };
+
+  // Every event, meal and venue across the whole trip — deduped by name — for
+  // the single "Everything" map.
+  type MapItem = {
+    name: string;
+    lat: number;
+    lng: number;
+    kind: string;
+    img: string;
+    seed: string;
+    neigh: string;
+    sub: string;
+    km: string;
+    segId: string | null;
+    dirUrl: string;
+  };
+  const allMapItems = useMemo(() => {
+    const seen: Record<string, boolean> = {};
+    const out: MapItem[] = [];
+    M.days.forEach((d) =>
+      d.segments.forEach((seg) => {
+        const p = cur(seg);
+        if (p.lat == null || p.catLabel === "FLIGHT" || p.catLabel === "YOUR BASE") return;
+        if (seen[p.name]) return;
+        seen[p.name] = true;
+        out.push({
+          name: p.name,
+          lat: p.lat as number,
+          lng: p.lng as number,
+          kind: kindOf(p.catLabel, p.name),
+          img: p.img,
+          seed: p.seed + "-all-" + seg.id,
+          neigh: p.neigh,
+          sub: d.weekday + " · " + seg.time,
+          km: geo.km(p.lat, p.lng),
+          segId: seg.id,
+          dirUrl: geo.dir(p.lat, p.lng),
+        });
+      })
+    );
+    M.optionalIdeas.forEach((o) => {
+      if (seen[o.name]) return;
+      seen[o.name] = true;
+      out.push({
+        name: o.name,
+        lat: o.lat,
+        lng: o.lng,
+        kind: kindOf("", o.name),
+        img: o.img,
+        seed: o.seed,
+        neigh: o.neigh,
+        sub: "Optional · " + o.cat,
+        km: geo.km(o.lat, o.lng),
+        segId: null,
+        dirUrl: geo.dir(o.lat, o.lng),
+      });
+    });
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [M, S.swaps]);
 
   function renderMap() {
-    const isAll = S.mapDayId === "all" || !M.days.some((d) => d.id === S.mapDayId);
+    if (S.mapDayId === "all" || !M.days.some((d) => d.id === S.mapDayId)) return renderMapEverything();
+    return renderMapDay();
+  }
+
+  // ---- The single "Everything" map: all events, food & venues, by type. ----
+  function renderMapEverything() {
+    const cats = ["All", ...KIND_ORDER];
+    const items = S.mapCat === "All" ? allMapItems : allMapItems.filter((i) => i.kind === S.mapCat);
+    const proj = geo.project([
+      { lat: geo.HOME.lat, lng: geo.HOME.lng },
+      ...items.map((i) => ({ lat: i.lat, lng: i.lng })),
+    ]);
+    const base = proj.pts[0];
+    const pts = proj.pts.slice(1);
+    const pins = items.map((it, i) => ({ ...it, x: pts[i].x, y: pts[i].y }));
+    const openItem = (it: MapItem) => () => {
+      if (it.segId) openPlace(it.segId)();
+      else if (typeof window !== "undefined") window.open(it.dirUrl, "_blank", "noopener");
+    };
+    const grouped = KIND_ORDER.map((k) => ({ kind: k, list: pins.filter((p) => p.kind === k) })).filter((g) => g.list.length);
+
+    return (
+      <div className="scroll" style={css("height:100%;overflow-y:auto;padding:52px 0 104px")}>
+        <div style={css("padding:6px 20px 0")}>
+          <div style={css("font-family:'Newsreader',serif;font-size:32px;font-weight:500;letter-spacing:-.4px")}>Trip map</div>
+          <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>Every event, meal &amp; venue — on one map.</div>
+        </div>
+        <div className="scroll" style={css("display:flex;gap:8px;overflow-x:auto;padding:15px 20px 4px")}>
+          <div onClick={() => setState({ mapDayId: "all" })} style={css("flex:none;background:#1E2447;color:#fff;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer")}>
+            Everything
+          </div>
+          {M.days.map((dd) => (
+            <div key={dd.id} onClick={() => setState({ mapDayId: dd.id })} style={css("flex:none;background:#fff;color:#5B6076;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer;border:1px solid #ECEAE2")}>
+              {dd.weekday.slice(0, 3)} {dd.dayNum}
+            </div>
+          ))}
+        </div>
+        {/* type filter */}
+        <div className="scroll" style={css("display:flex;gap:8px;overflow-x:auto;padding:10px 20px 2px")}>
+          {cats.map((c) => {
+            const active = S.mapCat === c;
+            const n = c === "All" ? allMapItems.length : allMapItems.filter((i) => i.kind === c).length;
+            const dot = c === "All" ? "#1E2447" : KIND_COLOR[c];
+            return (
+              <div key={c} onClick={() => setState({ mapCat: c })} style={active ? css("flex:none;display:flex;align-items:center;gap:6px;background:#1E2447;color:#fff;font-size:12px;font-weight:600;padding:8px 13px;border-radius:100px;cursor:pointer") : css("flex:none;display:flex;align-items:center;gap:6px;background:#fff;color:#5B6076;font-size:12px;font-weight:600;padding:8px 13px;border-radius:100px;cursor:pointer;border:1px solid #ECEAE2")}>
+                <span style={{ ...css("width:9px;height:9px;border-radius:100px;flex:none"), background: dot }} />
+                {c}
+                <span style={{ ...css("font-size:11px;font-weight:700"), color: active ? "rgba(255,255,255,.6)" : "#B0B3C0" }}>{n}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={css("margin:12px 18px 0;border-radius:20px;overflow:hidden;box-shadow:0 14px 30px -22px rgba(24,27,51,.6)")}>
+          <svg viewBox="0 0 330 340" style={css("width:100%;display:block")}>
+            <defs>
+              <pattern id="gm" width="30" height="30" patternUnits="userSpaceOnUse">
+                <path d="M30 0H0V30" fill="none" stroke="rgba(110,120,150,.12)" strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="330" height="340" fill="#EDEAE2" />
+            <rect width="330" height="340" fill="url(#gm)" />
+            <path d="M-10 250 Q 130 205 210 250 T 350 235" fill="none" stroke="rgba(120,140,170,.25)" strokeWidth="20" />
+            <text x="34" y="248" fontFamily="DM Sans, sans-serif" fontSize="9" fontWeight="700" fill="rgba(90,110,140,.7)" letterSpacing="1.4" transform="rotate(-9 34 248)">ST. LAWRENCE RIVER</text>
+            <path d="M120 -10 L150 360" stroke="rgba(200,200,205,.6)" strokeWidth="7" fill="none" />
+            <g transform="translate(305 30)">
+              <circle cx="0" cy="0" r="13" fill="#fff" stroke="#E2DFD4" strokeWidth="1" />
+              <path d="M0 -8 L3.4 2 L0 -0.6 L-3.4 2 Z" fill="#C2694E" />
+              <text x="0" y="10.5" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="7" fontWeight="700" fill="#5B6076">N</text>
+            </g>
+            <g onClick={openPlace("d1-hotel")} style={css("cursor:pointer")}>
+              <circle cx={base.x} cy={base.y} r="15" fill="#C9B78C" stroke="#fff" strokeWidth="2.6" />
+              <path d={`M${base.x - 5.5} ${base.y + 0.5} L${base.x} ${base.y - 6} L${base.x + 5.5} ${base.y + 0.5} Z`} fill="#241E10" />
+              <rect x={base.x - 3.9} y={base.y - 0.2} width="7.8" height="5.6" rx="0.8" fill="#241E10" />
+              <text x={base.x} y={base.y + 27} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="9" fontWeight="700" fill="#8A7A55" letterSpacing="0.6">BASE</text>
+            </g>
+            {pins.map((p) => (
+              <g key={p.name} onClick={openItem(p)} style={css("cursor:pointer")}>
+                <circle cx={p.x} cy={p.y} r="7.5" fill={KIND_COLOR[p.kind]} stroke="#fff" strokeWidth="2" />
+              </g>
+            ))}
+          </svg>
+        </div>
+        <div style={css("display:flex;align-items:center;gap:12px 16px;padding:12px 22px 0;flex-wrap:wrap")}>
+          <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#8A7A55")}>
+            <span style={css("width:12px;height:12px;border-radius:100px;background:#C9B78C;border:1.5px solid #fff;box-shadow:0 0 0 1px #E3D9BE;flex:none")} />Base
+          </span>
+          {KIND_ORDER.map((k) => (
+            <span key={k} style={{ ...css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600"), color: KIND_COLOR[k] }}>
+              <span style={{ ...css("width:12px;height:12px;border-radius:100px;flex:none"), background: KIND_COLOR[k] }} />
+              {k}
+            </span>
+          ))}
+        </div>
+        <div style={css("padding:9px 22px 0;font-size:11.5px;color:#9A9EAD;font-weight:500;line-height:1.45")}>
+          Tap any pin to open it. Filter by type above, or pick a day for the routed view.
+        </div>
+        <div style={css("padding:4px 20px 0")}>
+          <div onClick={openPlace("d1-hotel")} style={css("display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EBE3CF;border-radius:14px;padding:9px;margin-top:14px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5);cursor:pointer")}>
+            <div style={css("width:26px;height:26px;border-radius:100px;background:#C9B78C;display:flex;align-items:center;justify-content:center;flex:none")}>
+              <I.PinFill size={14} color="#241E10" />
+            </div>
+            <div style={css("flex:1;min-width:0")}>
+              <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1")}>Auberge Royal Versailles</div>
+              <div style={css("font-size:11px;font-weight:600;letter-spacing:.4px;color:#8A7A55;margin-top:3px")}>YOUR BASE · MERCIER-EST</div>
+            </div>
+            <a href={geo.dir(geo.HOME.lat, geo.HOME.lng)} target="_blank" rel="noopener" aria-label="Directions to your base" style={css("width:34px;height:34px;border-radius:100px;background:#F1F0F6;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none")}>
+              <I.Navigation size={15} />
+            </a>
+          </div>
+        </div>
+        {grouped.map((g) => (
+          <div key={g.kind}>
+            <div style={{ ...css("display:flex;align-items:center;gap:8px;padding:18px 22px 0;font-size:11px;letter-spacing:1.2px;font-weight:700"), color: KIND_COLOR[g.kind] }}>
+              <span style={{ ...css("width:10px;height:10px;border-radius:100px;flex:none"), background: KIND_COLOR[g.kind] }} />
+              {g.kind.toUpperCase()} · {g.list.length}
+            </div>
+            <div style={css("padding:4px 20px 0")}>
+              {g.list.map((p) => (
+                <div key={p.name} style={css("display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5);cursor:pointer")} onClick={openItem(p)}>
+                  <Img src={p.img} seed={p.seed} alt={p.name} style={css("width:46px;height:46px;border-radius:11px;object-fit:cover;flex:none")} />
+                  <div style={css("flex:1;min-width:0")}>
+                    <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>{p.name}</div>
+                    <div style={css("font-size:11px;font-weight:600;color:#8A8DA0;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>{p.sub} · {p.neigh}</div>
+                  </div>
+                  <a href={p.dirUrl} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()} aria-label={"Directions to " + p.name} style={css("width:34px;height:34px;border-radius:100px;background:#F1F0F6;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none")}>
+                    <I.Navigation size={15} />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // ---- The routed single-day view (numbered pins + loop + Maps route). ----
+  function renderMapDay() {
+    const isAll = false;
     const daysToShow = isAll ? M.days : [dayById(S.mapDayId)];
 
     // Home base + every stop we're plotting, projected together so the map
@@ -760,8 +970,8 @@ export default function Wander() {
           <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>{isAll ? "Every stop across all four days, from one base." : "Routed from your base and back, one day at a time."}</div>
         </div>
         <div className="scroll" style={css("display:flex;gap:8px;overflow-x:auto;padding:15px 20px 4px")}>
-          <div onClick={() => setState({ mapDayId: "all" })} style={isAll ? css("flex:none;background:#1E2447;color:#fff;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer") : css("flex:none;background:#fff;color:#5B6076;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer;border:1px solid #ECEAE2")}>
-            All days
+          <div onClick={() => setState({ mapDayId: "all" })} style={css("flex:none;background:#fff;color:#5B6076;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:100px;cursor:pointer;border:1px solid #ECEAE2")}>
+            Everything
           </div>
           {M.days.map((dd) => {
             const active = !isAll && dd.id === S.mapDayId;

@@ -95,6 +95,41 @@ export default function Wander() {
       allOpts.filter((x) => cur(x.seg).cat === c).length +
       M.optionalIdeas.filter((o) => o.cat === c).length;
 
+    // Olivia Dean — the anchor of the whole trip. Kept up top, not buried in a
+    // carousel.
+    const concertRec = segIndex["d2-show"];
+    const concert = concertRec ? cur(concertRec.seg) : null;
+
+    // The best dedicated gluten-free kitchen for each meal, front and centre.
+    const mealSpotlights = [
+      { meal: "Breakfast", segId: "d2-bf" },
+      { meal: "Lunch", segId: "d3-crepe" },
+      { meal: "Dinner", segId: "d1-din" },
+    ]
+      .map((m) => {
+        const rec = segIndex[m.segId];
+        if (!rec) return null;
+        const p = cur(rec.seg);
+        return {
+          meal: m.meal,
+          segId: m.segId,
+          name: p.name,
+          dietLabel: p.dietLabel,
+          img: p.img,
+          seed: p.seed,
+          rating: p.ratingLabel,
+        };
+      })
+      .filter(Boolean) as {
+      meal: string;
+      segId: string;
+      name: string;
+      dietLabel: string;
+      img: string;
+      seed: string;
+      rating: string;
+    }[];
+
     return (
       <div className="scroll" style={css("height:100%;overflow-y:auto;padding:0 0 104px")}>
         {/* hero */}
@@ -139,6 +174,32 @@ export default function Wander() {
           ))}
         </div>
 
+        {/* the anchor — Olivia Dean, front and centre */}
+        {concert && (
+          <div
+            onClick={openPlace("d2-show")}
+            style={css("margin:18px 18px 0;border-radius:20px;overflow:hidden;position:relative;cursor:pointer;box-shadow:0 22px 44px -26px rgba(24,27,51,.75)")}
+          >
+            <Img
+              src={geo.uimg(wowImgId("concert"))}
+              seed="home-anchor"
+              alt="Olivia Dean live at the Bell Centre"
+              style={css("width:100%;height:238px;object-fit:cover;display:block")}
+            />
+            <div style={css("position:absolute;inset:0;background:linear-gradient(180deg,rgba(24,27,51,.16) 0%,rgba(24,27,51,.34) 44%,rgba(24,27,51,.94) 100%)")} />
+            <div style={css("position:absolute;left:18px;right:18px;bottom:16px;color:#fff")}>
+              <div style={css("display:inline-flex;align-items:center;gap:6px;background:rgba(201,183,140,.24);border:1px solid rgba(228,211,166,.55);backdrop-filter:blur(6px);color:#E9DBB4;font-size:10px;letter-spacing:1.8px;font-weight:700;padding:5px 11px;border-radius:100px")}>
+                <I.SigStar size={11} color="#E9DBB4" />THE ANCHOR OF THE WHOLE TRIP
+              </div>
+              <div style={css("font-family:'Newsreader',serif;font-size:34px;font-weight:500;letter-spacing:-.4px;line-height:1.02;margin-top:11px")}>Olivia Dean, live</div>
+              <div style={css("font-size:13px;color:rgba(255,255,255,.88);margin-top:7px;font-weight:500;line-height:1.4")}>The Art of Loving Live, with Baby Rose · Fri Aug 7 · Bell Centre · doors 7 PM</div>
+              <div style={css("display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:#C9B78C;color:#241E10;font-size:12.5px;font-weight:700;padding:9px 15px;border-radius:100px")}>
+                View concert night<I.ChevronR size={14} color="#241E10" sw={2.4} />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* celiac assurance */}
         <div style={css("margin:16px 18px 0;background:#EAF0E7;border-radius:14px;padding:14px 15px")}>
           <div style={css("display:flex;align-items:flex-start;gap:10px")}>
@@ -155,6 +216,42 @@ export default function Wander() {
             </span>
             <span style={css("display:inline-flex;align-items:center;gap:4px;background:#F3ECDD;color:#8A6D34;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:100px")}>Confirm prep</span>
             <span style={css("display:inline-flex;align-items:center;gap:4px;background:#EDECE6;color:#7A7E90;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:100px")}>Coffee only</span>
+          </div>
+        </div>
+
+        {/* best celiac-safe pick per meal */}
+        <div style={css("padding:26px 20px 0")}>
+          <span style={css("font-family:'Newsreader',serif;font-size:22px;font-weight:500")}>Celiac-safe, every meal</span>
+          <div style={css("font-size:12.5px;color:#9A9EAD;margin-top:3px;font-weight:500")}>The best dedicated gluten-free kitchen for breakfast, lunch and dinner.</div>
+        </div>
+        <div style={css("padding:14px 18px 0")}>
+          {mealSpotlights.map((m) => (
+            <div
+              key={m.meal}
+              onClick={openPlace(m.segId)}
+              style={css("display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #E1EBDC;border-radius:16px;padding:10px;margin-bottom:10px;box-shadow:0 10px 24px -20px rgba(24,27,51,.5);cursor:pointer")}
+            >
+              <Img src={m.img} seed={m.seed + "-meal"} alt={m.name} style={css("width:74px;height:74px;border-radius:12px;object-fit:cover;flex:none;display:block")} />
+              <div style={css("flex:1;min-width:0")}>
+                <div style={css("font-size:10px;font-weight:700;letter-spacing:1.4px;color:#6E8B6A;text-transform:uppercase")}>{m.meal}</div>
+                <div style={css("font-family:'Newsreader',serif;font-size:18px;font-weight:500;line-height:1.1;margin-top:3px")}>{m.name}</div>
+                <div style={css("display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap")}>
+                  <span style={css("display:inline-flex;align-items:center;gap:4px;background:#EAF0E7;color:#4A6544;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:100px")}>
+                    <I.Check size={10} color="#6E8B6A" sw={3} />{m.dietLabel}
+                  </span>
+                  {m.rating && (
+                    <span style={css("display:inline-flex;align-items:center;gap:3px;font-size:11.5px;font-weight:600;color:#20233C")}>
+                      <I.Star size={11} />{m.rating}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <I.ChevronR size={16} color="#C2C7D0" sw={2} />
+            </div>
+          ))}
+          <div style={css("display:flex;align-items:flex-start;gap:7px;margin-top:4px;padding:2px 4px;font-size:11.5px;color:#5E7358;font-weight:500;line-height:1.5")}>
+            <I.ShieldCheck size={13} color="#6E8B6A" sw={2} style={css("flex:none;margin-top:1px")} />
+            <span>Every meal has a named dedicated-GF backup — <b style={{ fontWeight: 700 }}>La Bolo à Lolo</b> (celiac-owned, certified) anchors them all.</span>
           </div>
         </div>
 
@@ -564,11 +661,25 @@ export default function Wander() {
   // ============================ MAP ============================
   function renderMap() {
     const mdd = dayById(S.mapDayId);
-    const mapPts = mdd.segments.map((seg) => ({ seg, p: cur(seg) })).filter((x) => x.p.lat != null && x.p.catLabel !== "FLIGHT");
-    const proj = geo.project(mapPts.map((x) => ({ lat: x.p.lat as number, lng: x.p.lng as number })));
+    const mapPts = mdd.segments
+      .map((seg) => ({ seg, p: cur(seg) }))
+      .filter((x) => x.p.lat != null && x.p.catLabel !== "FLIGHT" && x.p.catLabel !== "YOUR BASE");
+    // Always anchor the map on your home base, then the day's stops — the
+    // hub-and-spoke the itinerary keeps promising, finally made visible.
+    const proj = geo.project([
+      { lat: geo.HOME.lat, lng: geo.HOME.lng },
+      ...mapPts.map((x) => ({ lat: x.p.lat as number, lng: x.p.lng as number })),
+    ]);
+    const base = proj.pts[0];
+    const stopPts = proj.pts.slice(1);
+    // Dashed loop: out from base, through the day's stops, and back.
+    const loop =
+      "M" + base.x.toFixed(1) + " " + base.y.toFixed(1) + " " +
+      stopPts.map((p) => "L" + p.x.toFixed(1) + " " + p.y.toFixed(1)).join(" ") +
+      (stopPts.length ? " L" + base.x.toFixed(1) + " " + base.y.toFixed(1) : "");
     const pins = mapPts.map((x, i) => {
-      const px = proj.pts[i].x;
-      const py = proj.pts[i].y;
+      const px = stopPts[i].x;
+      const py = stopPts[i].y;
       return {
         x: px,
         cy: py - 6,
@@ -588,7 +699,7 @@ export default function Wander() {
       <div className="scroll" style={css("height:100%;overflow-y:auto;padding:52px 0 104px")}>
         <div style={css("padding:6px 20px 0")}>
           <div style={css("font-family:'Newsreader',serif;font-size:32px;font-weight:500;letter-spacing:-.4px")}>Trip map</div>
-          <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>Routed, one day at a time.</div>
+          <div style={css("font-size:13px;color:#9A9EAD;margin-top:3px;font-weight:500")}>Routed from your base and back, one day at a time.</div>
         </div>
         <div className="scroll" style={css("display:flex;gap:8px;overflow-x:auto;padding:15px 20px 4px")}>
           {M.days.map((dd) => {
@@ -611,18 +722,48 @@ export default function Wander() {
             <rect width="330" height="340" fill="url(#gm)" />
             <path d="M-10 250 Q 130 205 210 250 T 350 235" fill="none" stroke="rgba(120,140,170,.25)" strokeWidth="20" />
             <path d="M120 -10 L150 360" stroke="rgba(200,200,205,.6)" strokeWidth="7" fill="none" />
-            <path d={proj.route} fill="none" stroke="#1E2447" strokeWidth="2.4" strokeDasharray="1 7" strokeLinecap="round" />
+            <path d={loop} fill="none" stroke="#1E2447" strokeWidth="2.4" strokeDasharray="1 7" strokeLinecap="round" />
+            {/* home base anchor — a gold house you leave from and return to */}
+            <g onClick={openPlace("d1-hotel")} style={css("cursor:pointer")}>
+              <circle cx={base.x} cy={base.y} r="16" fill="#C9B78C" stroke="#fff" strokeWidth="2.6" />
+              <path d={`M${base.x - 6} ${base.y + 0.5} L${base.x} ${base.y - 6.5} L${base.x + 6} ${base.y + 0.5} Z`} fill="#241E10" />
+              <rect x={base.x - 4.2} y={base.y - 0.2} width="8.4" height="6" rx="0.8" fill="#241E10" />
+              <text x={base.x} y={base.y + 29} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="9.5" fontWeight="700" fill="#8A7A55" letterSpacing="0.6">BASE</text>
+            </g>
             {pins.map((p) => (
               <g key={p.segId} onClick={openPlace(p.segId)} style={css("cursor:pointer")}>
-                <circle cx={p.x} cy={p.cy} r="15" fill="#1E2447" />
+                <circle cx={p.x} cy={p.cy} r="15" fill="#1E2447" stroke="#fff" strokeWidth="2" />
                 <path d={p.tail} fill="#1E2447" />
                 <text x={p.x} y={p.ty} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="14" fontWeight="700" fill="#fff">{p.n}</text>
               </g>
             ))}
           </svg>
         </div>
+        <div style={css("display:flex;align-items:center;gap:16px;padding:11px 22px 0;flex-wrap:wrap")}>
+          <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#8A7A55")}>
+            <span style={css("width:12px;height:12px;border-radius:100px;background:#C9B78C;border:1.5px solid #fff;box-shadow:0 0 0 1px #E3D9BE;flex:none")} />Your base
+          </span>
+          <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#5B6076")}>
+            <span style={css("width:12px;height:12px;border-radius:100px;background:#1E2447;flex:none")} />Day's stops
+          </span>
+          <span style={css("display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#5B6076")}>
+            <span style={css("width:16px;height:0;border-top:2px dotted #1E2447;flex:none")} />Loop out &amp; back
+          </span>
+        </div>
         <div style={css("padding:16px 20px 0;font-size:11px;letter-spacing:1.2px;font-weight:700;color:#A9974F")}>{(mdd.weekday + " · " + mdd.dateLong).toUpperCase()}</div>
         <div style={css("padding:4px 20px 0")}>
+          <div onClick={openPlace("d1-hotel")} style={css("display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EBE3CF;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5);cursor:pointer")}>
+            <div style={css("width:26px;height:26px;border-radius:100px;background:#C9B78C;display:flex;align-items:center;justify-content:center;flex:none")}>
+              <I.PinFill size={14} color="#241E10" />
+            </div>
+            <div style={css("flex:1;min-width:0")}>
+              <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1")}>Auberge Royal Versailles</div>
+              <div style={css("font-size:11px;font-weight:600;letter-spacing:.4px;color:#8A7A55;margin-top:3px")}>YOUR BASE · MERCIER-EST</div>
+            </div>
+            <a href={geo.dir(geo.HOME.lat, geo.HOME.lng)} target="_blank" rel="noopener" aria-label="Directions to your base" style={css("width:34px;height:34px;border-radius:100px;background:#F1F0F6;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none")}>
+              <I.Navigation size={15} />
+            </a>
+          </div>
           {pins.map((p) => (
             <div key={p.segId} style={css("display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5)")}>
               <div style={css("width:26px;height:26px;border-radius:100px;background:#1E2447;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none")}>{p.n}</div>

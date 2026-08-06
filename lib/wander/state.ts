@@ -9,6 +9,7 @@ export interface WanderState {
   placeSegId: string | null;
   sheetSegId: string | null;
   mapDayId: string;
+  mapCat: string;
   query: string;
   exploreCat: string;
   exploreSaved: boolean;
@@ -32,7 +33,8 @@ export function defaultState(): WanderState {
     dayId: "aug6",
     placeSegId: null,
     sheetSegId: null,
-    mapDayId: "aug6",
+    mapDayId: "all",
+    mapCat: "All",
     query: "",
     exploreCat: "All",
     exploreSaved: false,

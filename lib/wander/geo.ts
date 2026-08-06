@@ -56,6 +56,25 @@ export function dirChain(
   );
 }
 
+// A full-day Google Maps route: base → each stop, in order, on a real map —
+// so the stylized in-app map isn't the only way to locate things.
+export function dayRoute(stops: { lat: number; lng: number }[]): string {
+  if (!stops.length) return dir(HOME.lat, HOME.lng);
+  const origin = HOME.lat + "," + HOME.lng;
+  const last = stops[stops.length - 1];
+  const destination = last.lat + "," + last.lng;
+  const mids = stops.slice(0, -1).map((s) => s.lat + "," + s.lng).join("|");
+  const wp = mids ? "&waypoints=" + encodeURIComponent(mids) : "";
+  return (
+    "https://www.google.com/maps/dir/?api=1&origin=" +
+    origin +
+    "&destination=" +
+    destination +
+    wp +
+    "&travelmode=transit"
+  );
+}
+
 export function domain(u: string): string {
   try {
     return u

@@ -50,6 +50,12 @@ export default function Wander() {
   const cur = (seg: Segment) => seg.options[idxOf(seg)];
   const dayById = (id: string) => M.days.find((d) => d.id === id)!;
   const wOf = (d: Day) => (S.weather[d.id] === "alt" ? d.weather.alt : d.weather.def);
+  const wIcon = (cond: string, size = 16) => {
+    const ic = geo.ico(cond);
+    if (ic === "rain") return <I.WeatherRain size={size} />;
+    if (ic === "cloud") return <I.WeatherCloud w={size + 1} h={size - 1} />;
+    return <I.WeatherSun size={size} />;
+  };
   const openDay = (id: string) => () =>
     setState({ tab: "trip", itinScreen: "day", dayId: id, mapDayId: id, placeSegId: null, sheetSegId: null });
   const openPlace = (id: string) => () => {
@@ -172,6 +178,24 @@ export default function Wander() {
               <div style={css("font-size:10.5px;font-weight:600;letter-spacing:.4px;color:#9A9EAD;margin-top:5px;text-transform:uppercase")}>{st.label}</div>
             </div>
           ))}
+        </div>
+
+        {/* trip forecast — glanceable weather for all four days */}
+        <div style={css("display:flex;align-items:baseline;justify-content:space-between;padding:22px 20px 0")}>
+          <span style={css("font-family:'Newsreader',serif;font-size:18px;font-weight:500")}>Trip forecast</span>
+          <span style={css("font-size:11px;color:#9A9EAD;font-weight:500")}>Tap a day to open it</span>
+        </div>
+        <div className="scroll" style={css("display:flex;gap:9px;overflow-x:auto;padding:11px 20px 2px")}>
+          {M.days.map((d) => {
+            const w = wOf(d);
+            return (
+              <div key={d.id} onClick={openDay(d.id)} style={css("flex:1;min-width:88px;display:flex;flex-direction:column;align-items:center;gap:5px;background:#fff;border:1px solid #ECEAE2;border-radius:14px;padding:11px 8px;cursor:pointer;box-shadow:0 6px 16px -14px rgba(24,27,51,.5)")}>
+                <div style={css("font-size:10.5px;font-weight:700;letter-spacing:.6px;color:#9A9EAD")}>{d.weekday.slice(0, 3).toUpperCase()} {d.dayNum}</div>
+                {wIcon(w.cond, 20)}
+                <div style={css("font-size:12px;font-weight:600;color:#3A3E55;text-align:center;line-height:1.2")}>{w.label}</div>
+              </div>
+            );
+          })}
         </div>
 
         {/* the anchor — Olivia Dean, front and centre */}
@@ -325,7 +349,7 @@ export default function Wander() {
             <div style={css("flex:1;min-width:0;padding:14px 15px")}>
               <div style={css("display:flex;justify-content:space-between;align-items:center")}>
                 <span style={css("font-size:11px;letter-spacing:1.4px;font-weight:700;color:#9A9EAD;text-transform:uppercase")}>{d.weekday}</span>
-                <span style={css("display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#5B6076")}>{wOf(d).label}</span>
+                <span style={css("display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:#5B6076")}>{wIcon(wOf(d).cond, 15)}{wOf(d).label}</span>
               </div>
               <div style={css("font-size:14.5px;font-weight:600;line-height:1.32;margin-top:7px;color:#2A2E48")}>{d.title}</div>
               <div style={css("display:flex;align-items:center;gap:12px;margin-top:11px;font-size:12px;color:#9A9EAD;font-weight:500")}>
@@ -701,7 +725,10 @@ export default function Wander() {
           tail: "M" + (pt.x - 6) + " " + (pt.y - 1) + " L" + (pt.x + 6) + " " + (pt.y - 1) + " L" + pt.x + " " + (pt.y + 9) + " Z",
           n: i + 1,
           name: x.p.name,
+          short: x.p.name.length > 15 ? x.p.name.slice(0, 14).trimEnd() + "…" : x.p.name,
           time: x.seg.time,
+          neigh: x.p.neigh,
+          km: geo.km(x.p.lat, x.p.lng),
           img: x.p.img,
           seed: x.p.seed + "-map-" + x.seg.id,
           dirUrl: geo.dir(x.p.lat, x.p.lng),
@@ -755,7 +782,15 @@ export default function Wander() {
             <rect width="330" height="340" fill="#EDEAE2" />
             <rect width="330" height="340" fill="url(#gm)" />
             <path d="M-10 250 Q 130 205 210 250 T 350 235" fill="none" stroke="rgba(120,140,170,.25)" strokeWidth="20" />
+            {/* river + street orientation labels so the abstract map reads as a place */}
+            <text x="34" y="248" fontFamily="DM Sans, sans-serif" fontSize="9" fontWeight="700" fill="rgba(90,110,140,.7)" letterSpacing="1.4" transform="rotate(-9 34 248)">ST. LAWRENCE RIVER</text>
             <path d="M120 -10 L150 360" stroke="rgba(200,200,205,.6)" strokeWidth="7" fill="none" />
+            {/* compass */}
+            <g transform="translate(305 30)">
+              <circle cx="0" cy="0" r="13" fill="#fff" stroke="#E2DFD4" strokeWidth="1" />
+              <path d="M0 -8 L3.4 2 L0 -0.6 L-3.4 2 Z" fill="#C2694E" />
+              <text x="0" y="10.5" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="7" fontWeight="700" fill="#5B6076">N</text>
+            </g>
             {laid.map((g) => (
               <path key={"r-" + g.day.id} d={g.route} fill="none" stroke={isAll ? g.color : "#1E2447"} strokeWidth="2.4" strokeDasharray="1 7" strokeLinecap="round" opacity={isAll ? 0.8 : 1} />
             ))}
@@ -763,6 +798,9 @@ export default function Wander() {
             {laid.map((g) =>
               g.pins.map((p) => (
                 <g key={p.segId} onClick={openPlace(p.segId)} style={css("cursor:pointer")}>
+                  {!isAll && (
+                    <text x={p.x} y={p.n % 2 === 0 ? p.py + 23 : p.cy - 19} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="9.5" fontWeight="700" fill="#20233C" stroke="#EDEAE2" strokeWidth="3.4" paintOrder="stroke" style={{ pointerEvents: "none" }}>{p.short}</text>
+                  )}
                   <circle cx={p.x} cy={p.cy} r={isAll ? 12 : 15} fill={isAll ? g.color : "#1E2447"} stroke="#fff" strokeWidth="2" />
                   <path d={p.tail} fill={isAll ? g.color : "#1E2447"} />
                   <text x={p.x} y={isAll ? p.cy + 4 : p.ty} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize={isAll ? 11 : 14} fontWeight="700" fill="#fff">{p.n}</text>
@@ -770,6 +808,9 @@ export default function Wander() {
               ))
             )}
           </svg>
+        </div>
+        <div style={css("padding:9px 22px 0;font-size:11.5px;color:#9A9EAD;font-weight:500;line-height:1.45")}>
+          Tap any pin to open the place — or open the whole day in Google Maps below to locate every stop for real.
         </div>
         {isAll ? (
           <div style={css("display:flex;align-items:center;gap:12px 16px;padding:12px 22px 0;flex-wrap:wrap")}>
@@ -810,29 +851,43 @@ export default function Wander() {
             </a>
           </div>
         </div>
-        {laid.map((g) => (
-          <div key={"list-" + g.day.id}>
-            <div style={{ ...css("display:flex;align-items:center;gap:8px;padding:18px 22px 0;font-size:11px;letter-spacing:1.2px;font-weight:700"), color: isAll ? g.color : "#A9974F" }}>
-              {isAll && <span style={{ ...css("width:10px;height:10px;border-radius:100px;flex:none"), background: g.color }} />}
-              {(g.day.weekday + " · " + g.day.dateLong).toUpperCase()}
-            </div>
-            <div style={css("padding:4px 20px 0")}>
-              {g.pins.map((p) => (
-                <div key={p.segId} style={css("display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5)")}>
-                  <div style={{ ...css("width:26px;height:26px;border-radius:100px;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none"), background: isAll ? g.color : "#1E2447" }}>{p.n}</div>
-                  <Img src={p.img} seed={p.seed} alt={p.name} style={css("width:42px;height:42px;border-radius:10px;object-fit:cover;flex:none")} />
-                  <div style={css("flex:1;min-width:0")} onClick={openPlace(p.segId)}>
-                    <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1")}>{p.name}</div>
-                    <div style={css("font-size:11px;font-weight:600;letter-spacing:.4px;color:#A9974F;margin-top:3px")}>{p.time}</div>
-                  </div>
-                  <a href={p.dirUrl} target="_blank" rel="noopener" aria-label={"Directions to " + p.name} style={css("width:34px;height:34px;border-radius:100px;background:#F1F0F6;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none")}>
-                    <I.Navigation size={15} />
-                  </a>
+        {laid.map((g) => {
+          const gw = wOf(g.day);
+          const mapsUrl = geo.dayRoute(g.stops.map((s) => ({ lat: s.p.lat as number, lng: s.p.lng as number })));
+          return (
+            <div key={"list-" + g.day.id}>
+              <div style={css("display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px 0")}>
+                <div style={{ ...css("display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1.2px;font-weight:700;min-width:0"), color: isAll ? g.color : "#A9974F" }}>
+                  {isAll && <span style={{ ...css("width:10px;height:10px;border-radius:100px;flex:none"), background: g.color }} />}
+                  <span style={css("white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>{(g.day.weekday + " · " + g.day.dateLong).toUpperCase()}</span>
                 </div>
-              ))}
+                <span style={css("display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:#5B6076;flex:none")}>{wIcon(gw.cond, 15)}{gw.label}</span>
+              </div>
+              <div style={css("padding:4px 20px 0")}>
+                {g.pins.map((p) => (
+                  <div key={p.segId} style={css("display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5)")}>
+                    <div style={{ ...css("width:26px;height:26px;border-radius:100px;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none"), background: isAll ? g.color : "#1E2447" }}>{p.n}</div>
+                    <Img src={p.img} seed={p.seed} alt={p.name} style={css("width:42px;height:42px;border-radius:10px;object-fit:cover;flex:none")} />
+                    <div style={css("flex:1;min-width:0")} onClick={openPlace(p.segId)}>
+                      <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>{p.name}</div>
+                      <div style={css("font-size:11px;font-weight:600;color:#8A8DA0;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>
+                        <span style={{ color: "#A9974F" }}>{p.time}</span> · {p.neigh}{p.km ? " · " + p.km + " from base" : ""}
+                      </div>
+                    </div>
+                    <a href={p.dirUrl} target="_blank" rel="noopener" aria-label={"Directions to " + p.name} style={css("width:34px;height:34px;border-radius:100px;background:#F1F0F6;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none")}>
+                      <I.Navigation size={15} />
+                    </a>
+                  </div>
+                ))}
+                {g.pins.length > 0 && (
+                  <a href={mapsUrl} target="_blank" rel="noopener" style={css("display:flex;align-items:center;justify-content:center;gap:7px;margin-top:11px;background:#1E2447;color:#fff;font-size:12.5px;font-weight:600;padding:11px;border-radius:12px;text-decoration:none")}>
+                    <I.Navigation size={14} color="#C9B78C" />Open {g.day.weekday}&rsquo;s route in Google Maps
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   }

@@ -1078,7 +1078,7 @@ export default function Wander() {
                   <div key={p.segId} style={css("display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:9px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5)")}>
                     <div style={{ ...css("width:26px;height:26px;border-radius:100px;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none"), background: isAll ? g.color : "#1E2447" }}>{p.n}</div>
                     <Img src={p.img} seed={p.seed} alt={p.name} style={css("width:42px;height:42px;border-radius:10px;object-fit:cover;flex:none")} />
-                    <div style={css("flex:1;min-width:0")} onClick={openPlace(p.segId)}>
+                    <div style={css("flex:1;min-width:0;cursor:pointer")} onClick={openPlace(p.segId)}>
                       <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>{p.name}</div>
                       <div style={css("font-size:11px;font-weight:600;color:#8A8DA0;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>
                         <span style={{ color: "#A9974F" }}>{p.time}</span> · {p.neigh}{p.km ? " · " + p.km + " from base" : ""}
@@ -1174,7 +1174,7 @@ export default function Wander() {
           {reservations.map((r) => (
             <div key={r.id} style={css("display:flex;gap:12px;background:#fff;border-radius:15px;padding:10px;margin-top:9px;box-shadow:0 8px 20px -18px rgba(24,27,51,.5)")}>
               <Img src={r.img} seed={r.seed} alt={r.name} style={css("width:60px;height:60px;border-radius:11px;object-fit:cover;flex:none")} />
-              <div style={css("flex:1;min-width:0")} onClick={openPlace(r.id)}>
+              <div style={css("flex:1;min-width:0;cursor:pointer")} onClick={openPlace(r.id)}>
                 <div style={css("font-family:'Newsreader',serif;font-size:16px;font-weight:500;line-height:1.1")}>{r.name}</div>
                 <div style={css("font-size:11.5px;color:#9A9EAD;font-weight:500;margin-top:4px")}>{r.day} · {r.time}</div>
                 <div style={css("display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:10.5px;font-weight:700;color:#4A6544;background:#EAF0E7;padding:3px 8px;border-radius:100px")}>
@@ -1675,10 +1675,10 @@ export default function Wander() {
 
   // ============================ SHELL ============================
   return (
-    <div style={css("min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:#181B33")}>
+    <div style={css("min-height:100dvh;width:100%;display:flex;align-items:center;justify-content:center;background:#181B33")}>
       <div
         style={css(
-          "width:100%;max-width:430px;height:100vh;max-height:932px;position:relative;overflow:hidden;display:flex;flex-direction:column;background:#F7F5F0;color:#20233C;box-shadow:0 30px 80px -30px rgba(0,0,0,.6)"
+          "width:100%;max-width:430px;height:100dvh;max-height:932px;position:relative;overflow:hidden;display:flex;flex-direction:column;background:#F7F5F0;color:#20233C;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);touch-action:manipulation"
         )}
       >
         <div style={css("flex:1;min-height:0;position:relative;overflow:hidden")}>

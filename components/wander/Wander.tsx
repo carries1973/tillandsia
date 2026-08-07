@@ -725,7 +725,7 @@ export default function Wander() {
     M.days.forEach((d) =>
       d.segments.forEach((seg) => {
         const p = cur(seg);
-        if (p.lat == null || p.catLabel === "FLIGHT" || p.catLabel === "YOUR BASE") return;
+        if (p.lat == null || p.catLabel === "FLIGHT" || p.catLabel === "YOUR BASE" || p.catLabel === "LUGGAGE") return;
         if (seen[p.name]) return;
         seen[p.name] = true;
         out.push({
@@ -913,7 +913,7 @@ export default function Wander() {
       color: DAY_COLOR[d.id] || "#1E2447",
       stops: d.segments
         .map((seg) => ({ seg, p: cur(seg) }))
-        .filter((x) => x.p.lat != null && x.p.catLabel !== "FLIGHT" && x.p.catLabel !== "YOUR BASE"),
+        .filter((x) => x.p.lat != null && x.p.catLabel !== "FLIGHT" && x.p.catLabel !== "YOUR BASE" && x.p.catLabel !== "LUGGAGE"),
     }));
     const flatStops = groups.flatMap((g) => g.stops);
     const proj = geo.project([
@@ -1644,7 +1644,7 @@ export default function Wander() {
         {item(
           S.tab === "trip",
           "Trip",
-          () => setState({ tab: "trip", placeSegId: null, sheetSegId: null }),
+          () => setState({ tab: "trip", itinScreen: "home", placeSegId: null, sheetSegId: null }),
           <svg width="23" height="23" viewBox="0 0 24 24" fill="#1E2447" aria-hidden="true"><path d="M4 4h16a1 1 0 0 1 1 1v3H3V5a1 1 0 0 1 1-1zM3 10h18v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9zm4 3v4h4v-4H7z" /></svg>,
           <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#A2A6B4" strokeWidth="1.9" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5" /><path d="M3 9h18M7 13h4v4H7z" /></svg>
         )}
